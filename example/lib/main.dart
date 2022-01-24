@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zd_flutter_utils/dio/zd_dio_utils.dart';
 import 'package:zd_flutter_utils/except/handle_exception.dart';
 import 'package:zd_flutter_utils/log/log_utils.dart';
 import 'package:zd_flutter_utils/screen/flutter_screenutil.dart';
@@ -79,6 +80,8 @@ class HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     LogUtils.init(tag: "yc", isDebug: true, maxLen: 128);
+    ZdNetUtil.baseUrl = "http://www.zdsenlin.com:8085/";
+    ZdNetUtil.getInstance();
   }
 
   @override

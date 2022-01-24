@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zd_flutter_utils/dio/zd_dio_utils.dart';
 import 'package:zd_flutter_utils/screen/flutter_screenutil.dart';
 
 class ScreenPage extends StatelessWidget {
@@ -13,14 +14,20 @@ class ScreenPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          Container(
-            height: 200,
-            width: 200,
-            decoration: BoxDecoration(
-                color: Colors.amber, borderRadius: BorderRadius.circular(12)),
-            child: Text(
-              "适配前",
-              style: TextStyle(fontSize: 12),
+          InkWell(
+            onTap: () {
+              
+              ZdNetUtil().get("recharge/getRecharge", title: "查询");
+            },
+            child: Container(
+              height: 200,
+              width: 200,
+              decoration: BoxDecoration(
+                  color: Colors.amber, borderRadius: BorderRadius.circular(12)),
+              child: Text(
+                "适配前",
+                style: TextStyle(fontSize: 12),
+              ),
             ),
           ),
           Container(
