@@ -411,6 +411,8 @@
 
 
 ### 19.路由管理工具类
+
+- 待完善 暂时取消
 - 路由跳转相关工具类：NavigatorUtils
     ```
     parseRoute                               : 解析路由数据并返回map
@@ -452,7 +454,9 @@
     ```
 
 
-### 22.i18拓展工具类
+### 22.i18拓展工具类。- 取消
+
+
 - LocatizationExtensionState类中：String getString(String id)
     - 获取不同Locales渠道语言内容。举例：使用：var name = context.getString("name");
 - LocatizationExtensionContext类中：String getString(String id)
@@ -471,7 +475,7 @@
 ### 23.Time时间工具类
 
 
-### 24.SPI帮助工具类
+### 24.SPI帮助工具类 - 取消
 - spi简单介绍
     - Service Locator可以将接口（抽象基类）与具体实现分离和解耦合，同时允许通过接口从App中的任何位置访问具体实现。
     ```
@@ -504,7 +508,7 @@
 
 
 ### 26.常见拓展工具类
-#### 26.1 int拓展类：ExtensionInt
+#### 26.1 int拓展类：ExtensionInt      - 取消
 - ExtensionInt拓展类
     ```
     isPalindrome                             : 检查int是否为回文
@@ -515,7 +519,7 @@
     ```
 
 
-#### 26.2 List拓展类：ExtensionList
+#### 26.2 List拓展类：ExtensionList 
 - ExtensionList拓展类
     ```
     toJsonString                             : 将list转化为json字符串
@@ -572,7 +576,7 @@
 
 
 
-### 33.转化相关工具类
+### 33.转化相关工具类         - 取消
 - 转化相关的操作工具类
     ```
     toBinary                                 : 转换int值为二进制，比如：15 => 1111
