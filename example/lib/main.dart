@@ -1,9 +1,14 @@
+import 'dart:developer';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:zd_flutter_utils/dio/zd_dio_utils.dart';
 import 'package:zd_flutter_utils/except/handle_exception.dart';
 import 'package:zd_flutter_utils/log/log_utils.dart';
 import 'package:zd_flutter_utils/screen/flutter_screenutil.dart';
 import 'package:zd_flutter_utils/sp/sp_utils.dart';
+import 'package:zd_flutter_utils/toast/snack_utils.dart';
 import 'package:zd_flutter_utils/utils/flutter_init_utils.dart';
 import 'package:zd_flutter_utils_example/utils/bus_utils_page.dart';
 import 'package:zd_flutter_utils_example/utils/color_utils_page.dart';
@@ -80,8 +85,21 @@ class HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     LogUtils.init(tag: "yc", isDebug: true, maxLen: 128);
-    ZdNetUtil.baseUrl = "http://www.zdsenlin.com:8085/";
-    ZdNetUtil.getInstance();
+
+    ZdNetUtil.preInit(
+        baseUrl: "http://www.zdsen2in.com:8085/",
+        connectTimeout: 100 * 1000,
+        connectTimeoutCallBack: () {
+          print("object-ec");
+
+          EasyLoading.showToast("status");
+        },
+        cancelCallBack: () => EasyLoading.showToast("eee"));
+    ZdNetUtil.getInstance;
+  }
+
+  void inits() {
+    print("33333");
   }
 
   @override
@@ -106,7 +124,7 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       // 本地化的代理类
-
+      builder: EasyLoading.init(),
       //支持的语言
 
       home: Scaffold(

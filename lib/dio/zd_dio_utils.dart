@@ -1,10 +1,15 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:package_info/package_info.dart';
+
+import 'package:zd_flutter_utils/dio/responseInterceptors.dart';
 import 'package:zd_flutter_utils/flutter_utils.dart';
+
+import 'dio_log_Interceptor.dart';
 
 /*
  * 封装 restful 请求
@@ -19,68 +24,137 @@ import 'package:zd_flutter_utils/flutter_utils.dart';
 enum HttpMethod { GET, POST, DELETE, PUT, DOWNLOAD }
 
 class ZdNetUtil {
-  static ZdNetUtil? instance;
+  static ZdNetUtil _instance = ZdNetUtil._internal();
+  factory ZdNetUtil() => _instance;
   CancelToken cancelToken = new CancelToken();
-  BaseOptions? options;
-  static String appName = '';
-  static String version = "";
+  BaseOptions? _options;
+  static String _appName = '';
+  static String _version = '';
 
-  static const String GET = 'get';
-  static const String POST = 'post';
-  static const String PUT = 'put';
-  static const String PATCH = 'patch';
-  static const String DELETE = 'delete';
+  ///错误处理
+  static VoidCallback? _connectTimeoutCallBack;
+  static VoidCallback? _sendTimeoutCallBack;
+  static VoidCallback? _receiveTimeoutCallBack;
+  static VoidCallback? _cancelCallBack;
+  static VoidCallback? _otherCallBack;
+  static VoidCallback? _responseCallBack;
 
-  static Dio? dio;
+  static Dio? _dio;
 
-  static String? baseUrl;
-  static int? connectTimeout;
-  static int? receiveTimeout;
-  static Map<String, dynamic>? map;
-  static ResponseType? responseType;
-
-  //header 列表
-  Map<String, String> header = {"version": version, "appName": appName};
-
-  ///初始化 网络请求
-  static ZdNetUtil? getInstance() {
-    initPackageInfo();
-    if (ObjectUtils.isEmpty(instance)) {
-      instance = new ZdNetUtil();
-
-      LogUtils.d("初始化成功", tag: "ZdNetUtils");
-      return instance;
-    }
-    LogUtils.d("初始化成功", tag: "ZdNetUtils");
-    return instance;
-  }
+  static String? _baseUrl;
+  static int? _connectTimeout;
+  static int? _receiveTimeout;
+  static ResponseType? _responseType;
+  //baseHeader 列表
+  static Map<String, dynamic>? _baseHeader;
 
   /*
-  * baseUrl:请求基础地址
-  * */
-  ZdNetUtil() {
-    options = new BaseOptions(
+   * 必须初始化 
+   * baseUrl:基础网络请求连接
+   * */
 
-        ///请求的基础地址
-        baseUrl: baseUrl ?? "",
+  static preInit({
+    required String baseUrl,
+    Map<String, dynamic>? header,
+    int? connectTimeout,
+    int? receiveTimeout,
+    ResponseType? responseType,
+    VoidCallback? connectTimeoutCallBack,
+    VoidCallback? sendTimeoutCallBack,
+    VoidCallback? receiveTimeoutCallBack,
+    VoidCallback? cancelCallBack,
+    VoidCallback? otherCallBack,
+    VoidCallback? responseCallBack,
+  }) {
+    _baseUrl = baseUrl;
+    _baseHeader = header ?? _baseHeader;
+    _connectTimeout = connectTimeout;
+    _receiveTimeout = receiveTimeout;
+    _responseType = responseType;
 
-        ///相应超时时间
-        connectTimeout: connectTimeout ?? 150000,
-
-        ///响应流上次请求时间
-        receiveTimeout: receiveTimeout ?? 7000,
-
-        ///请求头
-        headers: map ?? header,
-
-        ///请求 contentType
-        contentType: Headers.formUrlEncodedContentType,
-        responseType: responseType ?? ResponseType.json);
-
-    dio = new Dio(options);
-
-    //添加拦截器
+    ///errorCallBack
+    ///
+    print(connectTimeoutCallBack.toString());
+    _connectTimeoutCallBack = connectTimeoutCallBack;
+    _sendTimeoutCallBack = sendTimeoutCallBack;
+    _receiveTimeoutCallBack = receiveTimeoutCallBack;
+    _cancelCallBack = cancelCallBack;
+    _otherCallBack = otherCallBack;
+    _responseCallBack = responseCallBack;
   }
+
+  // 通用全局单例初始化
+  ZdNetUtil._internal() {
+    LogUtils.d("object");
+
+    ///通用全局单例，第一次使用时初始化
+    if (null == _dio) {
+      LogUtils.d(_baseUrl ?? "123");
+      LogUtils.d(_appName);
+      _options = new BaseOptions(
+
+          ///请求的基础地址
+          baseUrl: _baseUrl ?? "",
+
+          ///相应超时时间
+          connectTimeout: _connectTimeout ?? 150000,
+
+          ///响应流上次请求时间
+          receiveTimeout: _receiveTimeout ?? 7000,
+
+          ///请求头
+          headers: _baseHeader ?? _zdHeaders,
+
+          ///请求 contentType
+          contentType: Headers.formUrlEncodedContentType,
+          responseType: _responseType ?? ResponseType.json);
+
+      _dio = new Dio(_options);
+
+      _dio!.interceptors.add(new DioLogInterceptor(
+          _connectTimeoutCallBack,
+          _sendTimeoutCallBack,
+          _receiveTimeoutCallBack,
+          _cancelCallBack,
+          _otherCallBack,
+          _responseCallBack));
+//      _dio.interceptors.add(new PrettyDioLogger());
+      //_dio!.interceptors.add(new ResponseInterceptors(0));
+    }
+  }
+
+  ///可指定域名
+  static ZdNetUtil getInstance({String? baseUrl}) {
+    //initPackageInfo();
+    if (baseUrl == null) {
+      return _instance._normal();
+    } else {
+      return _instance._appointUrl(baseUrl);
+    }
+  }
+
+  //用于指定特定域名
+  ZdNetUtil _appointUrl(String baseUrl) {
+    if (_dio != null) {
+      _dio!.options.baseUrl = baseUrl;
+    }
+    return this;
+  }
+
+  //一般请求，默认域名
+  ZdNetUtil _normal() {
+    if (_dio != null) {
+      if (_dio!.options.baseUrl != _baseUrl) {
+        if (ObjectUtils.isEmptyString(_baseUrl)) {
+          LogUtils.e("baseUrl不可为空", tag: "ZdNetUtil");
+        } else {
+          _dio!.options.baseUrl = _baseUrl!;
+        }
+      }
+    }
+    return this;
+  }
+
   /*
    * 取消请求
    *
@@ -91,70 +165,110 @@ class ZdNetUtil {
     token.cancel("cancelled");
   }
 
-  ///添加带初始信息 header
-  ZdNetUtil addHeader(String k, Object v) {
-    header[k] = v.toString();
-    return this;
-  }
+  /// 自定义Header
 
-  ///初始化设备信息
-  static initPackageInfo() {
-    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-      appName = packageInfo.appName;
-      version = packageInfo.version;
-    });
-  }
+  Map<String, dynamic> _zdHeaders = {
+    //'mobile_phone_type': GetPlatform.isAndroid ? "Android" : "IOS",
+  };
+
+  // ///初始化设备信息
+  // static void initPackageInfo() {
+  //   PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+  //     _appName = packageInfo.appName;
+  //     _version = packageInfo.version;
+  //   });
+  // }
 
   /*
    * get请求
    */
-  get(url, {data, options, cancelToken, title}) async {
+  get(
+    url, {
+    data,
+    options,
+    cancelToken,
+    title,
+  }) async {
     Response? response;
+
     try {
-      response = await dio!.get(url,
+      response = await _dio!.get(url,
           queryParameters: data, options: options, cancelToken: cancelToken);
 
-      JsonUtils.printRespond(response, titile: title);
-    } on DioError catch (e) {
-      print('get error---------$e');
-      formatError(e);
-    }
+      JsonUtils.printRespond(response, titile: title ?? url);
+    } on DioError catch (e) {}
     return response?.data;
   }
 
   /*
    * post请求
    */
-  post(url, {data, options, cancelToken}) async {
+  post(url, {data, options, cancelToken, title}) async {
     Response? response;
     try {
-      response = await dio!.post(url,
+      response = await _dio!.post(url,
           queryParameters: data, options: options, cancelToken: cancelToken);
-      print('post success---------${response.data}');
-    } on DioError catch (e) {
-      print('post error---------$e');
-      formatError(e);
-    }
+      JsonUtils.printRespond(response.data, titile: title ?? url);
+      ;
+    } on DioError catch (e) {}
+    return response?.data;
+  }
+
+  /*
+   * put请求
+   */
+  put(url, {data, options, cancelToken, title}) async {
+    Response? response;
+    try {
+      response = await _dio!.put(url,
+          queryParameters: data, options: options, cancelToken: cancelToken);
+      JsonUtils.printRespond(response.data, titile: title ?? url);
+      ;
+    } on DioError catch (e) {}
+    return response?.data;
+  }
+
+  /*
+   * delete请求
+   */
+  delete(url, {data, options, cancelToken, title}) async {
+    Response? response;
+    try {
+      response = await _dio!.delete(url,
+          queryParameters: data, options: options, cancelToken: cancelToken);
+      JsonUtils.printRespond(response.data, titile: title ?? url);
+      ;
+    } on DioError catch (e) {}
+    return response?.data;
+  }
+
+  upload(url, {data, options, cancelToken, title}) async {
+    Response? response;
+    try {
+      response = await _dio!.delete(url,
+          queryParameters: data, options: options, cancelToken: cancelToken);
+      JsonUtils.printRespond(response.data, titile: title ?? url);
+      ;
+    } on DioError catch (e) {}
     return response?.data;
   }
 
   /*
    * 下载文件
    */
-  downloadFile(urlPath, savePath) async {
+  downloadFile(urlPath, savePath, {title}) async {
     Response? response;
     try {
-      response = await dio!.download(urlPath, savePath,
+      response = await _dio!.download(urlPath, savePath,
           onReceiveProgress: (int count, int total) {
         //进度
         ;
         LogUtils.d("$count $total", tag: "DownloadFile");
       });
 
-      JsonUtils.printRespond(response, titile: "downloadFile success");
+      LogUtils.d(response.requestOptions.path);
     } on DioError catch (e) {
       print('downloadFile error---------$e');
-      formatError(e);
     }
 
     return response!.data;
@@ -163,25 +277,5 @@ class ZdNetUtil {
   /*
    * error统一处理
    */
-  void formatError(DioError e) {
-    if (e.type == DioErrorType.connectTimeout) {
-      // It occurs when url is opened timeout.
-      LogUtils.d("请求超时", tag: "ZdNetUtil");
-    } else if (e.type == DioErrorType.sendTimeout) {
-      // It occurs when url is sent timeout.
-      LogUtils.d("请求超时", tag: "ZdNetUtil");
-    } else if (e.type == DioErrorType.receiveTimeout) {
-      //It occurs when receiving timeout
-      LogUtils.d("响应超时", tag: "ZdNetUtil");
-    } else if (e.type == DioErrorType.response) {
-      // When the server response, but with a incorrect status, such as 404, 503...
-      LogUtils.d("出现异常", tag: "ZdNetUtil");
-    } else if (e.type == DioErrorType.cancel) {
-      // When the request is cancelled, dio will throw a error with this type.
-      LogUtils.d("请求取消", tag: "ZdNetUtil");
-    } else {
-      //DEFAULT Default error type, Some other Error. In this case, you can read the DioError.error if it is not null.
-      LogUtils.d("未知错误", tag: "ZdNetUtil");
-    }
-  }
+
 }
