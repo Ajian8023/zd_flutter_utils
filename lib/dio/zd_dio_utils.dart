@@ -4,9 +4,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:package_info/package_info.dart';
 
-import 'package:zd_flutter_utils/dio/responseInterceptors.dart';
 import 'package:zd_flutter_utils/flutter_utils.dart';
 
 import 'dio_log_Interceptor.dart';
