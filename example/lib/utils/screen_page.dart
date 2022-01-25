@@ -51,9 +51,10 @@ class _ScreenPageState extends State<ScreenPage> {
 
               print("path:" + path);
 
-              await ZdNetUtil.getInstance(
-                      baseUrl: "http://www.zdsenlin.com:8085/")
-                  .upload("file/upLoad", path, "hhh",);
+              await ZdNetUtil.getInstance().post("", cancelToken: cancelToken);
+
+              ZdNetUtil.getInstance().cancelRequests(cancelToken);
+
               setState(() {});
             },
             child: Container(

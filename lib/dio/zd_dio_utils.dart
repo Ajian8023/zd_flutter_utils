@@ -13,14 +13,14 @@ import 'dio_log_Interceptor.dart';
 /*
  * 封装 restful 请求
  *
- * GET、POST、DELETE、PATCH
+ * GET、POST、DELETE、PUT、DOWNLOAD、UPLOAD
  * 主要作用为统一处理相关事务：
  *  - 统一处理请求前缀；
  *  - 统一打印请求信息；
  *  - 统一打印响应信息；
  *  - 统一打印报错信息；
+ *  
  */
-enum HttpMethod { GET, POST, DELETE, PUT, DOWNLOAD }
 
 class ZdNetUtil {
   static ZdNetUtil _instance = ZdNetUtil._internal();
@@ -219,6 +219,9 @@ class ZdNetUtil {
   post(url, {data, options, cancelToken, title}) async {
     await _assessNetWork();
     Response? response;
+
+ 
+   
     try {
       response = await _dio!
           .post(url, data: data, options: options, cancelToken: cancelToken);
@@ -258,6 +261,9 @@ class ZdNetUtil {
     return response?.data;
   }
 
+/*
+   * 上传文件
+   */
   upload(url, path, imageName,
       {data, options, cancelToken, title, imageType}) async {
     await _assessNetWork();
@@ -272,7 +278,7 @@ class ZdNetUtil {
     try {
       response = await _dio!.post(url,
           data: formData, options: options, cancelToken: cancelToken);
-      JsonUtils.printRespond(response, titile: title ?? url);
+      JsonUtils.printRespond(response, titile: "上传");
       ;
     } on DioError catch (e) {}
     return response?.data;
