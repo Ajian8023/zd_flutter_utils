@@ -201,7 +201,7 @@ class ZdNetUtil {
     cancelToken,
     title,
   }) async {
-    await netWork();
+    await _assessNetWork();
     Response? response;
 
     try {
@@ -217,7 +217,7 @@ class ZdNetUtil {
    * post请求
    */
   post(url, {data, options, cancelToken, title}) async {
-    await netWork();
+    await _assessNetWork();
     Response? response;
     try {
       response = await _dio!
@@ -232,7 +232,7 @@ class ZdNetUtil {
    * put请求
    */
   put(url, {data, options, cancelToken, title}) async {
-    await netWork();
+    await _assessNetWork();
     Response? response;
     try {
       response = await _dio!
@@ -247,7 +247,7 @@ class ZdNetUtil {
    * delete请求
    */
   delete(url, {data, options, cancelToken, title}) async {
-    await netWork();
+    await _assessNetWork();
     Response? response;
     try {
       response = await _dio!
@@ -260,7 +260,7 @@ class ZdNetUtil {
 
   upload(url, path, imageName,
       {data, options, cancelToken, title, imageType}) async {
-    await netWork();
+    await _assessNetWork();
     Response? response;
 
     Map<String, dynamic> map = Map();
@@ -282,7 +282,7 @@ class ZdNetUtil {
    * 下载文件
    */
   downloadFile(urlPath, savePath, {title}) async {
-    await netWork();
+    await _assessNetWork();
     Response? response;
     try {
       response = await _dio!.download(urlPath, savePath,
@@ -301,9 +301,9 @@ class ZdNetUtil {
   }
 
   /*
-   * error统一处理
+   * 判断网络
    */
-  netWork() async {
+  _assessNetWork() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile) {
       // I am connected to a mobile network.
