@@ -41,9 +41,9 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin sqflite, com.tekartik.sqflite.SqflitePlugin", e);
     }
     try {
-      flutterEngine.getPlugins().add(new com.fodingleaf.zd_flutter_utils.ZdFlutterUtilsPlugin());
+      flutterEngine.getPlugins().add(new com.foldingleaf.zd_flutter_utils.ZdFlutterUtilsPlugin());
     } catch(Exception e) {
-      Log.e(TAG, "Error registering plugin zd_flutter_utils, com.fodingleaf.zd_flutter_utils.ZdFlutterUtilsPlugin", e);
+      Log.e(TAG, "Error registering plugin zd_flutter_utils, com.foldingleaf.zd_flutter_utils.ZdFlutterUtilsPlugin", e);
     }
   }
 }

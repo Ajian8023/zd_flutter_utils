@@ -1,4 +1,4 @@
-group 'com.fodingleaf.zd_flutter_utils'
+group 'com.foldingleaf.zd_flutter_utils'
 version '1.0-SNAPSHOT'
 
 buildscript {
