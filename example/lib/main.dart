@@ -87,14 +87,17 @@ class HomePageState extends State<HomePage> {
     LogUtils.init(tag: "yc", isDebug: true, maxLen: 128);
 
     ZdNetUtil.preInit(
-        baseUrl: "http://www.zdsen2in.com:8085/",
-        connectTimeout: 100 * 1000,
-        connectTimeoutCallBack: () {
-          print("object-ec");
+      baseUrl: "http://www.zdsen2in.com:8085/",
+      connectTimeout: 100 * 1000,
+      connectTimeoutCallBack: () {
+        print("object-ec");
 
-          EasyLoading.showToast("status");
-        },
-        cancelCallBack: () => EasyLoading.showToast("eee"));
+        EasyLoading.showToast("status");
+      },
+      cancelCallBack: () => EasyLoading.showToast("eee"),
+      noneNetWorkCallBack: ()=>EasyLoading.showToast("noneNetWork"),
+      wifiNetWorkCallBack: () => EasyLoading.showToast("wifiNetWorkCallBack"),
+    );
     ZdNetUtil.getInstance;
   }
 

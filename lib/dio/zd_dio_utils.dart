@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 
 import 'package:flutter/foundation.dart';
@@ -36,6 +37,11 @@ class ZdNetUtil {
   static VoidCallback? _cancelCallBack;
   static VoidCallback? _otherCallBack;
   static VoidCallback? _responseCallBack;
+  static VoidCallback? _noneNetWorkCallBack;
+
+  ///check网络callback
+  static VoidCallback? _mobileNetWorkCallBack;
+  static VoidCallback? _wifiNetWorkCallBack;
 
   static Dio? _dio;
 
@@ -63,6 +69,9 @@ class ZdNetUtil {
     VoidCallback? cancelCallBack,
     VoidCallback? otherCallBack,
     VoidCallback? responseCallBack,
+    VoidCallback? noneNetWorkCallBack,
+    VoidCallback? mobileNetWorkCallBackl,
+    VoidCallback? wifiNetWorkCallBack,
   }) {
     _baseUrl = baseUrl;
     _baseHeader = header ?? _baseHeader;
@@ -72,13 +81,18 @@ class ZdNetUtil {
 
     ///errorCallBack
     ///
-    print(connectTimeoutCallBack.toString());
+    ///
     _connectTimeoutCallBack = connectTimeoutCallBack;
     _sendTimeoutCallBack = sendTimeoutCallBack;
     _receiveTimeoutCallBack = receiveTimeoutCallBack;
     _cancelCallBack = cancelCallBack;
     _otherCallBack = otherCallBack;
     _responseCallBack = responseCallBack;
+
+    ///检查无网络操作
+    _noneNetWorkCallBack = noneNetWorkCallBack;
+    _mobileNetWorkCallBack = mobileNetWorkCallBackl;
+    _wifiNetWorkCallBack = wifiNetWorkCallBack;
   }
 
   // 通用全局单例初始化
@@ -187,6 +201,7 @@ class ZdNetUtil {
     cancelToken,
     title,
   }) async {
+    await netWork();
     Response? response;
 
     try {
@@ -202,11 +217,12 @@ class ZdNetUtil {
    * post请求
    */
   post(url, {data, options, cancelToken, title}) async {
+    await netWork();
     Response? response;
     try {
-      response = await _dio!.post(url,
-          queryParameters: data, options: options, cancelToken: cancelToken);
-      JsonUtils.printRespond(response.data, titile: title ?? url);
+      response = await _dio!
+          .post(url, data: data, options: options, cancelToken: cancelToken);
+      JsonUtils.printRespond(response, titile: title ?? url);
       ;
     } on DioError catch (e) {}
     return response?.data;
@@ -216,11 +232,12 @@ class ZdNetUtil {
    * put请求
    */
   put(url, {data, options, cancelToken, title}) async {
+    await netWork();
     Response? response;
     try {
-      response = await _dio!.put(url,
-          queryParameters: data, options: options, cancelToken: cancelToken);
-      JsonUtils.printRespond(response.data, titile: title ?? url);
+      response = await _dio!
+          .put(url, data: data, options: options, cancelToken: cancelToken);
+      JsonUtils.printRespond(response, titile: title ?? url);
       ;
     } on DioError catch (e) {}
     return response?.data;
@@ -230,22 +247,32 @@ class ZdNetUtil {
    * delete请求
    */
   delete(url, {data, options, cancelToken, title}) async {
+    await netWork();
     Response? response;
     try {
-      response = await _dio!.delete(url,
-          queryParameters: data, options: options, cancelToken: cancelToken);
-      JsonUtils.printRespond(response.data, titile: title ?? url);
+      response = await _dio!
+          .delete(url, data: data, options: options, cancelToken: cancelToken);
+      JsonUtils.printRespond(response, titile: title ?? url);
       ;
     } on DioError catch (e) {}
     return response?.data;
   }
 
-  upload(url, {data, options, cancelToken, title}) async {
+  upload(url, path, imageName,
+      {data, options, cancelToken, title, imageType}) async {
+    await netWork();
     Response? response;
+
+    Map<String, dynamic> map = Map();
+
+    map["file"] =
+        await MultipartFile.fromFile(path, filename: imageName + ".png");
+
+    FormData formData = FormData.fromMap(map);
     try {
-      response = await _dio!.delete(url,
-          queryParameters: data, options: options, cancelToken: cancelToken);
-      JsonUtils.printRespond(response.data, titile: title ?? url);
+      response = await _dio!.post(url,
+          data: formData, options: options, cancelToken: cancelToken);
+      JsonUtils.printRespond(response, titile: title ?? url);
       ;
     } on DioError catch (e) {}
     return response?.data;
@@ -255,6 +282,7 @@ class ZdNetUtil {
    * 下载文件
    */
   downloadFile(urlPath, savePath, {title}) async {
+    await netWork();
     Response? response;
     try {
       response = await _dio!.download(urlPath, savePath,
@@ -275,5 +303,19 @@ class ZdNetUtil {
   /*
    * error统一处理
    */
+  netWork() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      // I am connected to a mobile network.
+      LogUtils.i("I am connected to a mobile network.");
+      _mobileNetWorkCallBack?.call();
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      // I am connected to a wifi network.
 
+      _wifiNetWorkCallBack?.call();
+      LogUtils.i("I am connected to a wifi network.");
+    } else if (connectivityResult == ConnectivityResult.none) {
+      _noneNetWorkCallBack?.call();
+    }
+  }
 }

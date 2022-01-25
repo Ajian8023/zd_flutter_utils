@@ -30,7 +30,7 @@ class DioLogInterceptor extends Interceptor {
       LogUtils.i("请求参数 :" + options.queryParameters.toJsonString(),
           tag: "ZdNetRequest");
     } else {
-      LogUtils.i("请求参数 :" + options.data.toJsonString(), tag: "ZdNetRequest");
+      LogUtils.i("请求参数 :" + options.data.toString(), tag: "ZdNetRequest");
     }
     if (ObjectUtils.isEmptyMap(options.extra)) {
       LogUtils.i("携带extra :" + options.extra.toJsonString(),
@@ -49,32 +49,33 @@ class DioLogInterceptor extends Interceptor {
       _dioErrLog(e,
           title: "连接ERROR", message: "请求超时", tag: 'ZdNetError ConnectTimeout');
     } else if (e.type == DioErrorType.sendTimeout) {
-      _sendTimeoutCallBack ?? fun();
+      _sendTimeoutCallBack?.call();
       _dioErrLog(e,
           title: "请求ERROR", message: "请求超时", tag: 'ZdNetError SendTimeout');
 
       // It occurs when url is sent timeout.
 
     } else if (e.type == DioErrorType.receiveTimeout) {
-      _receiveTimeoutCallBack ?? fun();
+      _receiveTimeoutCallBack?.call();
 
       _dioErrLog(e,
           title: "响应ERROR", message: "响应超时", tag: "ZdNetError ReceiveTimeout");
     } else if (e.type == DioErrorType.response) {
-      _responseCallBack ?? fun();
+      _responseCallBack?.call();
       _dioErrLog(e,
-          title: "异常ERROR", message: "出现异常", tag: "ZdNetError ResponseError");
+          title: "服务器异常ERROR",
+          message: "服务器出现异常",
+          tag: "ZdNetError ResponseError");
 
       LogUtils.e("Error---------------------------${e}");
     } else if (e.type == DioErrorType.cancel) {
-      _cancelCallBack ?? fun();
+      _cancelCallBack?.call();
       _dioErrLog(e, title: "请求取消", message: "请求取消", tag: "ZdNetError Cancel");
     } else {
-      _otherCallBack ?? fun();
+      _otherCallBack?.call();
+      print(e);
       _dioErrLog(e,
           title: "未知异常", message: "未知异常", tag: "ZdNetError OtherError");
-
-      LogUtils.e("Error---------------------------${e}");
     }
 
     handler.next(e);
@@ -89,16 +90,14 @@ class DioLogInterceptor extends Interceptor {
     LogUtils.e("----------${message}----------", tag: tag);
 
     LogUtils.e("${title} URL :" + e.requestOptions.baseUrl, tag: tag);
-    LogUtils.e("${title} 方法 :" + e.requestOptions.path,
-        tag: "ZdNetError ConnectTimeout");
+    LogUtils.e("${title} 方法 :" + e.requestOptions.path, tag: tag);
     LogUtils.e("${title} 类型 :" + e.requestOptions.method, tag: tag);
     if (e.requestOptions.method == "GET") {
       LogUtils.e(
           "${title} 参数 :" + e.requestOptions.queryParameters.toJsonString(),
           tag: tag);
     } else {
-      LogUtils.e("${title} 参数 :" + e.requestOptions.data.toJsonString(),
-          tag: tag);
+      LogUtils.e("${title} 参数 :" + e.requestOptions.data.toString(), tag: tag);
     }
     if (ObjectUtils.isEmptyMap(e.requestOptions.extra)) {
       LogUtils.e("${title} extra :" + e.requestOptions.extra.toJsonString(),

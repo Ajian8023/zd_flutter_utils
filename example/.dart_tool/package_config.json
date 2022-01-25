@@ -140,6 +140,30 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "connectivity",
+      "rootUri": "file:///Users/tj/dev/flutter/.pub-cache/hosted/pub.flutter-io.cn/connectivity-3.0.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "connectivity_for_web",
+      "rootUri": "file:///Users/tj/dev/flutter/.pub-cache/hosted/pub.flutter-io.cn/connectivity_for_web-0.4.0+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "connectivity_macos",
+      "rootUri": "file:///Users/tj/dev/flutter/.pub-cache/hosted/pub.flutter-io.cn/connectivity_macos-0.2.1+2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "connectivity_platform_interface",
+      "rootUri": "file:///Users/tj/dev/flutter/.pub-cache/hosted/pub.flutter-io.cn/connectivity_platform_interface-2.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "convert",
       "rootUri": "file:///Users/tj/dev/flutter/.pub-cache/hosted/pub.flutter-io.cn/convert-3.0.1",
       "packageUri": "lib/",
@@ -656,7 +680,7 @@
       "languageVersion": "2.15"
     }
   ],
-  "generated": "2022-01-25T08:06:56.075929Z",
+  "generated": "2022-01-25T09:23:33.974395Z",
   "generator": "pub",
   "generatorVersion": "2.15.1"
 }
