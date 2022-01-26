@@ -97,12 +97,11 @@ class ZdNetUtil {
 
   // 通用全局单例初始化
   ZdNetUtil._internal() {
-    LogUtils.d("object");
-
+   
     ///通用全局单例，第一次使用时初始化
     if (null == _dio) {
-      LogUtils.d(_baseUrl ?? "123");
-      LogUtils.d(_appName);
+      
+     
       _options = new BaseOptions(
 
           ///请求的基础地址
