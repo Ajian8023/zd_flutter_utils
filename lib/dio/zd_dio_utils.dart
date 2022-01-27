@@ -21,6 +21,7 @@ import 'dio_log_Interceptor.dart';
  *  - 统一打印报错信息；
  *  
  */
+typedef ProgressCallback = void Function(int count, int total);
 
 class ZdNetUtil {
   static ZdNetUtil _instance = ZdNetUtil._internal();
@@ -32,6 +33,7 @@ class ZdNetUtil {
 
   ///错误处理
   static VoidCallback? _connectTimeoutCallBack;
+
   static VoidCallback? _sendTimeoutCallBack;
   static VoidCallback? _receiveTimeoutCallBack;
   static VoidCallback? _cancelCallBack;
@@ -97,11 +99,8 @@ class ZdNetUtil {
 
   // 通用全局单例初始化
   ZdNetUtil._internal() {
-   
     ///通用全局单例，第一次使用时初始化
     if (null == _dio) {
-      
-     
       _options = new BaseOptions(
 
           ///请求的基础地址
@@ -194,77 +193,135 @@ class ZdNetUtil {
    * get请求
    */
   get(
-    url, {
+   {
+   required   url, 
     data,
     options,
     cancelToken,
     title,
+    VoidCallback? startRequest,
+    VoidCallback? endRequest,
+    useResponsePrint = true,
   }) async {
     await _assessNetWork();
     Response? response;
 
     try {
+      startRequest?.call();
       response = await _dio!.get(url,
-          queryParameters: data, options: options, cancelToken: cancelToken);
+          queryParameters: data ?? {},
+          options: options,
+          cancelToken: cancelToken);
 
-      JsonUtils.printRespond(response, titile: title ?? url);
+      useResponsePrint
+          ? JsonUtils.printRespond(response, titile: title ?? url)
+          : null;
     } on DioError catch (e) {}
+    endRequest?.call();
+
     return response?.data;
   }
 
   /*
    * post请求
    */
-  post(url, {data, options, cancelToken, title}) async {
+  post(
+    {
+    required  url, 
+    data,
+    options,
+    cancelToken,
+    title,
+    VoidCallback? startRequest,
+    VoidCallback? endRequest,
+    useResponsePrint = true,
+  }) async {
     await _assessNetWork();
     Response? response;
 
- 
-   
     try {
+      startRequest?.call();
       response = await _dio!
           .post(url, data: data, options: options, cancelToken: cancelToken);
-      JsonUtils.printRespond(response, titile: title ?? url);
-      ;
+      useResponsePrint
+          ? JsonUtils.printRespond(response, titile: title ?? url)
+          : null;
     } on DioError catch (e) {}
+    endRequest?.call();
     return response?.data;
   }
 
   /*
    * put请求
    */
-  put(url, {data, options, cancelToken, title}) async {
+  put(
+    {
+      required url,
+    data,
+    options,
+    cancelToken,
+    title,
+    VoidCallback? startRequest,
+    VoidCallback? endRequest,
+    useResponsePrint = true,
+  }) async {
     await _assessNetWork();
     Response? response;
     try {
+      startRequest?.call();
       response = await _dio!
           .put(url, data: data, options: options, cancelToken: cancelToken);
-      JsonUtils.printRespond(response, titile: title ?? url);
+      useResponsePrint
+          ? JsonUtils.printRespond(response, titile: title ?? url)
+          : null;
       ;
     } on DioError catch (e) {}
+    endRequest?.call();
     return response?.data;
   }
 
   /*
    * delete请求
    */
-  delete(url, {data, options, cancelToken, title}) async {
+  delete(
+     {
+    required   url,
+    data,
+    options,
+    cancelToken,
+    title,
+    VoidCallback? startRequest,
+    VoidCallback? endRequest,
+    useResponsePrint = true,
+  }) async {
     await _assessNetWork();
     Response? response;
     try {
+       startRequest?.call();
       response = await _dio!
           .delete(url, data: data, options: options, cancelToken: cancelToken);
-      JsonUtils.printRespond(response, titile: title ?? url);
+     useResponsePrint? JsonUtils.printRespond(response, titile: title ?? url):null;
       ;
     } on DioError catch (e) {}
+     endRequest?.call();
     return response?.data;
   }
 
 /*
    * 上传文件
    */
-  upload(url, path, imageName,
-      {data, options, cancelToken, title, imageType}) async {
+  upload(
+      {required url,
+      required path,
+      required imageName,
+      options,
+      cancelToken,
+      title,
+      imageType,
+
+    useResponsePrint = true,
+      ProgressCallback? onReceiveProgress,
+      ProgressCallback? onSendProgress}) async {
     await _assessNetWork();
     Response? response;
 
@@ -275,9 +332,23 @@ class ZdNetUtil {
 
     FormData formData = FormData.fromMap(map);
     try {
-      response = await _dio!.post(url,
-          data: formData, options: options, cancelToken: cancelToken);
-      JsonUtils.printRespond(response, titile: "上传");
+      response = await _dio!.post(
+        url,
+        data: formData,
+        options: options,
+        cancelToken: cancelToken,
+        onReceiveProgress: (count, total) {
+          if (onReceiveProgress != null) {
+            onReceiveProgress(count, total);
+          }
+        },
+        onSendProgress: (count, total) {
+          if (onSendProgress != null) {
+            onSendProgress(count, total);
+          }
+        },
+      );
+     useResponsePrint? JsonUtils.printRespond(response, titile:title??"上传"):null;
       ;
     } on DioError catch (e) {}
     return response?.data;
@@ -286,23 +357,34 @@ class ZdNetUtil {
   /*
    * 下载文件
    */
-  downloadFile(urlPath, savePath, {title}) async {
+  downloadFile(
+      {required String urlPath,
+      required String dirName,
+      required String fileName,
+      title,
+      ProgressCallback? onReceiveProgress,
+   
+    useResponsePrint = true,}) async {
     await _assessNetWork();
     Response? response;
+    var path = '';
     try {
-      response = await _dio!.download(urlPath, savePath,
+      path = await StorageUtils.getAppDocPath(
+          fileName: fileName, dirName: dirName);
+      response = await _dio!.download(urlPath, path,
           onReceiveProgress: (int count, int total) {
         //进度
         ;
-        LogUtils.d("$count $total", tag: "DownloadFile");
+      useResponsePrint?  LogUtils.d("下载进度:$count $total", tag: "DownloadFile"):null;
+        if (onReceiveProgress != null) {
+          onReceiveProgress(count, total);
+        }
       });
-
-      LogUtils.d(response.requestOptions.path);
     } on DioError catch (e) {
       print('downloadFile error---------$e');
     }
 
-    return response!.data;
+    return path;
   }
 
   /*

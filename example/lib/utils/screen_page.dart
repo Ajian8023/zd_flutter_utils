@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:zd_flutter_utils/dio/zd_dio_utils.dart';
 import 'package:zd_flutter_utils/flutter_utils.dart';
 import 'package:zd_flutter_utils/screen/flutter_screenutil.dart';
@@ -21,13 +22,6 @@ class _ScreenPageState extends State<ScreenPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    init();
-  }
-
-  init() async {
-    path = await StorageUtils.getAppDocPath(
-        dirName: "/images/", fileName: "image.png");
-    setState(() {});
   }
 
   @override
@@ -41,20 +35,26 @@ class _ScreenPageState extends State<ScreenPage> {
         children: [
           InkWell(
             onTap: () async {
-              // ZdNetUtil.getInstance(baseUrl: "http://www.zdsenlin.com:8085/")
-              //     .get("recharge/getRecharge",
-              //         title: "查询",
-              //         data: {"name": "123"},
-              //         cancelToken: cancelToken);
+              ZdNetUtil.getInstance(baseUrl: "http://www.zdsenlin.com:8085/")
+                  .get(
+                      url: "recharge/getRecharge",
+                      title: "查询",
+                      data: {"name": "123"},
+                      cancelToken: cancelToken,
+                      startRequest: () => EasyLoading.show(status: "hhh"),
+                      endRequest: () => EasyLoading.dismiss());
 
               // ZdNetUtil.getInstance().cancelRequests(cancelToken);
 
-              print("path:" + path);
-
-              await ZdNetUtil.getInstance().post("", cancelToken: cancelToken);
-
-              ZdNetUtil.getInstance().cancelRequests(cancelToken);
-
+              // var e = await ZdNetUtil.getInstance(
+              //         baseUrl: "https://gimg2.baidu.com/")
+              //     .downloadFile(
+              //   fileName: "hhh",
+              //   dirName: "image",
+              //   urlPath:
+              //       "image_searcsh/src=http%3A%2F%2Fhbimg.b0.upaiyun.com%2Fb0037e12bb79c4c5a2544b7db3cac4cec747ad5510807-VXMeMd_fw236&refer=http%3A%2F%2Fhbimg.b0.upaiyun.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1645841831&t=e22d29e88faf10a535b422b9d4320479",
+              // );
+              // LogUtils.d("path:" + e);
               setState(() {});
             },
             child: Container(
