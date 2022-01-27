@@ -192,16 +192,15 @@ class ZdNetUtil {
   /*
    * get请求
    */
-  get(
-   {
-   required   url, 
-    data,
-    options,
-    cancelToken,
-    title,
+  get({
+    required String url,
+    Map<String, dynamic>? data,
+    Options? options,
+    CancelToken? cancelToken,
+    String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
-    useResponsePrint = true,
+    bool? useResponsePrint = true,
   }) async {
     await _assessNetWork();
     Response? response;
@@ -213,7 +212,7 @@ class ZdNetUtil {
           options: options,
           cancelToken: cancelToken);
 
-      useResponsePrint
+      useResponsePrint!
           ? JsonUtils.printRespond(response, titile: title ?? url)
           : null;
     } on DioError catch (e) {}
@@ -225,16 +224,15 @@ class ZdNetUtil {
   /*
    * post请求
    */
-  post(
-    {
-    required  url, 
-    data,
-    options,
-    cancelToken,
-    title,
+  post({
+    required String url,
+    dynamic data,
+    Options? options,
+    CancelToken? cancelToken,
+    String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
-    useResponsePrint = true,
+    bool? useResponsePrint = true,
   }) async {
     await _assessNetWork();
     Response? response;
@@ -243,7 +241,7 @@ class ZdNetUtil {
       startRequest?.call();
       response = await _dio!
           .post(url, data: data, options: options, cancelToken: cancelToken);
-      useResponsePrint
+      useResponsePrint!
           ? JsonUtils.printRespond(response, titile: title ?? url)
           : null;
     } on DioError catch (e) {}
@@ -254,16 +252,15 @@ class ZdNetUtil {
   /*
    * put请求
    */
-  put(
-    {
-      required url,
-    data,
-    options,
-    cancelToken,
-    title,
+  put({
+    required String url,
+    dynamic data,
+    Options? options,
+    CancelToken? cancelToken,
+    String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
-    useResponsePrint = true,
+    bool? useResponsePrint = true,
   }) async {
     await _assessNetWork();
     Response? response;
@@ -271,7 +268,7 @@ class ZdNetUtil {
       startRequest?.call();
       response = await _dio!
           .put(url, data: data, options: options, cancelToken: cancelToken);
-      useResponsePrint
+      useResponsePrint!
           ? JsonUtils.printRespond(response, titile: title ?? url)
           : null;
       ;
@@ -283,27 +280,28 @@ class ZdNetUtil {
   /*
    * delete请求
    */
-  delete(
-     {
-    required   url,
-    data,
-    options,
-    cancelToken,
-    title,
+  delete({
+    required String url,
+    dynamic data,
+    Options? options,
+    CancelToken? cancelToken,
+    String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
-    useResponsePrint = true,
+    bool? useResponsePrint = true,
   }) async {
     await _assessNetWork();
     Response? response;
     try {
-       startRequest?.call();
+      startRequest?.call();
       response = await _dio!
           .delete(url, data: data, options: options, cancelToken: cancelToken);
-     useResponsePrint? JsonUtils.printRespond(response, titile: title ?? url):null;
+      useResponsePrint!
+          ? JsonUtils.printRespond(response, titile: title ?? url)
+          : null;
       ;
     } on DioError catch (e) {}
-     endRequest?.call();
+    endRequest?.call();
     return response?.data;
   }
 
@@ -311,24 +309,27 @@ class ZdNetUtil {
    * 上传文件
    */
   upload(
-      {required url,
-      required path,
-      required imageName,
-      options,
-      cancelToken,
-      title,
-      imageType,
-
-    useResponsePrint = true,
+      {required String url,
+      required String path,
+      required String imageName,
+      Options? options,
+      CancelToken? cancelToken,
+      String? title,
+      String? imageType,
+      bool useResponsePrint = true,
       ProgressCallback? onReceiveProgress,
       ProgressCallback? onSendProgress}) async {
     await _assessNetWork();
     Response? response;
 
     Map<String, dynamic> map = Map();
-
-    map["file"] =
-        await MultipartFile.fromFile(path, filename: imageName + ".png");
+    if (ObjectUtils.isEmptyString(imageType)) {
+      map["file"] =
+          await MultipartFile.fromFile(path, filename: imageName + imageType!);
+    } else {
+      map["file"] =
+          await MultipartFile.fromFile(path, filename: imageName + ".png");
+    }
 
     FormData formData = FormData.fromMap(map);
     try {
@@ -348,7 +349,9 @@ class ZdNetUtil {
           }
         },
       );
-     useResponsePrint? JsonUtils.printRespond(response, titile:title??"上传"):null;
+      useResponsePrint
+          ? JsonUtils.printRespond(response, titile: title ?? "上传")
+          : null;
       ;
     } on DioError catch (e) {}
     return response?.data;
@@ -357,14 +360,14 @@ class ZdNetUtil {
   /*
    * 下载文件
    */
-  downloadFile(
-      {required String urlPath,
-      required String dirName,
-      required String fileName,
-      title,
-      ProgressCallback? onReceiveProgress,
-   
-    useResponsePrint = true,}) async {
+  downloadFile({
+    required String urlPath,
+    required String dirName,
+    required String fileName,
+    String? title,
+    ProgressCallback? onReceiveProgress,
+    bool useResponsePrint = true,
+  }) async {
     await _assessNetWork();
     Response? response;
     var path = '';
@@ -375,7 +378,9 @@ class ZdNetUtil {
           onReceiveProgress: (int count, int total) {
         //进度
         ;
-      useResponsePrint?  LogUtils.d("下载进度:$count $total", tag: "DownloadFile"):null;
+        useResponsePrint
+            ? LogUtils.d("下载进度:$count $total", tag: "DownloadFile")
+            : null;
         if (onReceiveProgress != null) {
           onReceiveProgress(count, total);
         }
