@@ -1,4 +1,4 @@
-package com.fodingleaf.zd_flutter_utils
+package com.foldingleaf.zd_flutter_utils
 
 import androidx.annotation.NonNull
 

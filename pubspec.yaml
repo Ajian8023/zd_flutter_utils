@@ -38,7 +38,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.fodingleaf.zd_flutter_utils
+        package: com.foldingleaf.zd_flutter_utils
         pluginClass: ZdFlutterUtilsPlugin
       ios:
         pluginClass: ZdFlutterUtilsPlugin
