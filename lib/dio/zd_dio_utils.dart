@@ -53,7 +53,7 @@ class ZdNetUtil {
   static ResponseType? _responseType;
   //baseHeader 列表
   static Map<String, dynamic>? _baseHeader;
-
+  static String? _contentType;
   /*
    * 必须初始化 
    * baseUrl:基础网络请求连接
@@ -64,6 +64,7 @@ class ZdNetUtil {
     Map<String, dynamic>? header,
     int? connectTimeout,
     int? receiveTimeout,
+    String? contentType,
     ResponseType? responseType,
     VoidCallback? connectTimeoutCallBack,
     VoidCallback? sendTimeoutCallBack,
@@ -80,6 +81,7 @@ class ZdNetUtil {
     _connectTimeout = connectTimeout;
     _receiveTimeout = receiveTimeout;
     _responseType = responseType;
+    _contentType = contentType;
 
     ///errorCallBack
     ///
@@ -116,7 +118,7 @@ class ZdNetUtil {
           headers: _baseHeader ?? _zdHeaders,
 
           ///请求 contentType
-          contentType: Headers.formUrlEncodedContentType,
+          contentType: _contentType ?? Headers.formUrlEncodedContentType,
           responseType: _responseType ?? ResponseType.json);
 
       _dio = new Dio(_options);
