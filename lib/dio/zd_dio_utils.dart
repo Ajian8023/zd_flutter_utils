@@ -195,6 +195,8 @@ class ZdNetUtil {
   get({
     required String url,
     Map<String, dynamic>? data,
+    Map<String, dynamic>? headers,
+    bool useRequestOption = false,
     Options? options,
     CancelToken? cancelToken,
     String? title,
@@ -209,7 +211,7 @@ class ZdNetUtil {
       startRequest?.call();
       response = await _dio!.get(url,
           queryParameters: data ?? {},
-          options: options,
+          options: useRequestOption ? options : Options(headers: headers),
           cancelToken: cancelToken);
 
       useResponsePrint!
@@ -227,6 +229,8 @@ class ZdNetUtil {
   post({
     required String url,
     dynamic data,
+    Map<String, dynamic>? headers,
+    bool useRequestOption = false,
     Options? options,
     CancelToken? cancelToken,
     String? title,
@@ -239,8 +243,12 @@ class ZdNetUtil {
 
     try {
       startRequest?.call();
-      response = await _dio!
-          .post(url, data: data, options: options, cancelToken: cancelToken);
+      response = await _dio!.post(
+        url,
+        data: data,
+        options: useRequestOption ? options : Options(headers: headers),
+        cancelToken: cancelToken,
+      );
       useResponsePrint!
           ? JsonUtils.printRespond(response, titile: title ?? url)
           : null;
@@ -255,6 +263,8 @@ class ZdNetUtil {
   put({
     required String url,
     dynamic data,
+    Map<String, dynamic>? headers,
+    bool useRequestOption = false,
     Options? options,
     CancelToken? cancelToken,
     String? title,
@@ -266,8 +276,12 @@ class ZdNetUtil {
     Response? response;
     try {
       startRequest?.call();
-      response = await _dio!
-          .put(url, data: data, options: options, cancelToken: cancelToken);
+      response = await _dio!.put(
+        url,
+        data: data,
+        options: useRequestOption ? options : Options(headers: headers),
+        cancelToken: cancelToken,
+      );
       useResponsePrint!
           ? JsonUtils.printRespond(response, titile: title ?? url)
           : null;
@@ -283,6 +297,8 @@ class ZdNetUtil {
   delete({
     required String url,
     dynamic data,
+    Map<String, dynamic>? headers,
+    bool useRequestOption = false,
     Options? options,
     CancelToken? cancelToken,
     String? title,
@@ -294,8 +310,12 @@ class ZdNetUtil {
     Response? response;
     try {
       startRequest?.call();
-      response = await _dio!
-          .delete(url, data: data, options: options, cancelToken: cancelToken);
+      response = await _dio!.delete(
+        url,
+        data: data,
+        options: useRequestOption ? options : Options(headers: headers),
+        cancelToken: cancelToken,
+      );
       useResponsePrint!
           ? JsonUtils.printRespond(response, titile: title ?? url)
           : null;
@@ -312,6 +332,8 @@ class ZdNetUtil {
       {required String url,
       required String path,
       required String imageName,
+      Map<String, dynamic>? headers,
+      bool useRequestOption = false,
       Options? options,
       CancelToken? cancelToken,
       String? title,
@@ -336,7 +358,7 @@ class ZdNetUtil {
       response = await _dio!.post(
         url,
         data: formData,
-        options: options,
+        options: useRequestOption ? options : Options(headers: headers),
         cancelToken: cancelToken,
         onReceiveProgress: (count, total) {
           if (onReceiveProgress != null) {
