@@ -141,11 +141,13 @@ class ZdNetUtil {
                   tag: 'PostmanDioLoggerSimple',
                 )),
       );
+      _dioCacheManager =
+          DioCacheManager(CacheConfig(baseUrl: _baseUrl, databaseName: "zdsl"));
+      ;
 
       ///缓存库
-      _dio!.interceptors.add(_dioCacheManager =
-          DioCacheManager(CacheConfig(baseUrl: _baseUrl, databaseName: "zdsl"))
-              .interceptor);
+      _dio!.interceptors.add(_dioCacheManager!.interceptor);
+
 //      _dio.interceptors.add(new PrettyDioLogger());
       //_dio!.interceptors.add(new ResponseInterceptors(0));
     }
@@ -233,6 +235,7 @@ class ZdNetUtil {
 
   ///清除所有已过期缓存  一般不需要调用 因为他会自己掉用
   Future<bool> clearExpiredCache() => _dioCacheManager!.clearExpired();
+
   /// 自定义Header
 
   Map<String, dynamic> _zdHeaders = {
@@ -291,7 +294,6 @@ class ZdNetUtil {
     bool? cacheForceRefresh = false,
     String? cacheSubKey,
   }) async {
-
     Response? response;
 
     try {
@@ -348,7 +350,6 @@ class ZdNetUtil {
     bool? cacheForceRefresh = false,
     String? cacheSubKey,
   }) async {
- 
     Response? response;
 
     try {
@@ -395,7 +396,6 @@ class ZdNetUtil {
     bool? cacheForceRefresh = false,
     String? cacheSubKey,
   }) async {
-    
     Response? response;
     try {
       startRequest?.call();
@@ -442,7 +442,6 @@ class ZdNetUtil {
     bool? cacheForceRefresh = false,
     String? cacheSubKey,
   }) async {
-    
     Response? response;
     try {
       startRequest?.call();
@@ -485,7 +484,6 @@ class ZdNetUtil {
       bool useResponsePrint = true,
       ProgressCallback? onReceiveProgress,
       ProgressCallback? onSendProgress}) async {
-  
     Response? response;
 
     Map<String, dynamic> map = Map();
@@ -537,7 +535,6 @@ class ZdNetUtil {
     ProgressCallback? onReceiveProgress,
     bool useResponsePrint = true,
   }) async {
-    
     Response? response;
     var path = '';
     try {
@@ -559,6 +556,4 @@ class ZdNetUtil {
     }
     return requiredResponse ? response : path;
   }
-
-  
 }

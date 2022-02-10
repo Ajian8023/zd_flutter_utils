@@ -40,12 +40,13 @@ class _ScreenPageState extends State<ScreenPage> {
                       url: "recharge/getRecharge",
                       title: "查询",
                       data: {"name": "123"},
-                      cacheprimaryKey: 'ss',
                       cancelToken: cancelToken,
                       cacheMaxAge: Duration(seconds: 1),
                       cacheMaxStale: Duration(seconds: 10),
                       cacheForceRefresh: true);
-
+              bool e = await ZdNetUtil.getInstance().deleteCacheByPrimaryKey(
+                  path: "recharge/getRecharge", requestMethod: 'GET');
+              LogUtils.i(e);
               // ZdNetUtil.getInstance().cancelRequests(cancelToken);
 
               // var e = await ZdNetUtil.getInstance(
