@@ -88,15 +88,13 @@ class HomePageState extends State<HomePage> {
 
     ZdNetUtil.preInit(
       baseUrl: "http://www.zdsen2in.com:8085/",
-      connectTimeout: 13 * 1000,
+      connectTimeout: 10 * 1000,
       connectTimeoutCallBack: () {
         print("object-ec");
 
         EasyLoading.showToast("status");
       },
       cancelCallBack: () => EasyLoading.showToast("eee"),
-      noneNetWorkCallBack: () => EasyLoading.showToast("noneNetWork"),
-      wifiNetWorkCallBack: () => EasyLoading.showToast("wifiNetWorkCallBack"),
     );
     ZdNetUtil.getInstance;
   }

@@ -40,9 +40,11 @@ class _ScreenPageState extends State<ScreenPage> {
                       url: "recharge/getRecharge",
                       title: "查询",
                       data: {"name": "123"},
+                      cacheprimaryKey: 'ss',
                       cancelToken: cancelToken,
-                      startRequest: () => EasyLoading.show(status: "hhh"),
-                      endRequest: () => EasyLoading.dismiss());
+                      cacheMaxAge: Duration(seconds: 1),
+                      cacheMaxStale: Duration(seconds: 10),
+                      cacheForceRefresh: true);
 
               // ZdNetUtil.getInstance().cancelRequests(cancelToken);
 

@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:zd_flutter_utils/flutter_utils.dart';
 import 'dart:core';
@@ -10,19 +11,26 @@ class DioLogInterceptor extends Interceptor {
   VoidCallback? _cancelCallBack;
   VoidCallback? _otherCallBack;
   VoidCallback? _responseCallBack;
-
+  VoidCallback? _wifiNetWorkCallBack;
+  VoidCallback? _noneNetWorkCallBack;
+   VoidCallback?  _mobileNetWorkCallBack;
   DioLogInterceptor(
       this._connectTimeoutCallBack,
       this._sendTimeoutCallBack,
       this._receiveTimeoutCallBack,
       this._cancelCallBack,
       this._otherCallBack,
-      this._responseCallBack);
+      this._responseCallBack,
+      this._wifiNetWorkCallBack,
+      this._noneNetWorkCallBack
+      ,this._mobileNetWorkCallBack);
 
   onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
+    _assessNetWork();
+    
     LogUtils.i("请求URL :" + options.baseUrl, tag: "ZdNetRequest");
     LogUtils.i("请求方法 :" + options.path, tag: "ZdNetRequest");
     LogUtils.i("请求类型 :" + options.method, tag: "ZdNetRequest");
@@ -36,7 +44,6 @@ class DioLogInterceptor extends Interceptor {
       LogUtils.i("携带extra :" + options.extra.toJsonString(),
           tag: "ZdNetRequest");
     }
-  
 
     return handler.next(options);
   }
@@ -83,8 +90,23 @@ class DioLogInterceptor extends Interceptor {
     handler.next(e);
   }
 
-  void fun() {
-    print("ee");
+  /*
+   * 判断网络
+   */
+  _assessNetWork() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      // I am connected to a mobile network.
+      LogUtils.i("I am connected to a mobile network.");
+      _mobileNetWorkCallBack?.call();
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      // I am connected to a wifi network.
+
+      _wifiNetWorkCallBack?.call();
+      LogUtils.i("I am connected to a wifi network.");
+    } else if (connectivityResult == ConnectivityResult.none) {
+      _noneNetWorkCallBack?.call();
+    }
   }
 
   _dioErrLog(DioError e, {String? title, String? tag, String? message}) {

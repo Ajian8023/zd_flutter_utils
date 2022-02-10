@@ -1,10 +1,10 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/foundation.dart';
+import 'package:postman_dio/postman_dio.dart';
 
 import 'package:zd_flutter_utils/flutter_utils.dart';
 
@@ -26,6 +26,7 @@ typedef ProgressCallback = void Function(int count, int total);
 class ZdNetUtil {
   static ZdNetUtil _instance = ZdNetUtil._internal();
   factory ZdNetUtil() => _instance;
+  DioCacheManager? _dioCacheManager;
   CancelToken cancelToken = new CancelToken();
   BaseOptions? _options;
   static String _appName = '';
@@ -118,7 +119,7 @@ class ZdNetUtil {
           headers: _baseHeader ?? _zdHeaders,
 
           ///请求 contentType
-          contentType: _contentType ?? Headers.formUrlEncodedContentType,
+          contentType: _contentType ?? Headers.jsonContentType,
           responseType: _responseType ?? ResponseType.json);
 
       _dio = new Dio(_options);
@@ -129,7 +130,22 @@ class ZdNetUtil {
           _receiveTimeoutCallBack,
           _cancelCallBack,
           _otherCallBack,
-          _responseCallBack));
+          _responseCallBack,
+          _wifiNetWorkCallBack,
+          _noneNetWorkCallBack,
+          _mobileNetWorkCallBack));
+      _dio!.interceptors.add(
+        PostmanDioLoggerSimple(
+            logPrint: (Object object) => LogUtils.i(
+                  object.toString(),
+                  tag: 'PostmanDioLoggerSimple',
+                )),
+      );
+
+      ///缓存库
+      _dio!.interceptors.add(_dioCacheManager =
+          DioCacheManager(CacheConfig(baseUrl: _baseUrl, databaseName: "zdsl"))
+              .interceptor);
 //      _dio.interceptors.add(new PrettyDioLogger());
       //_dio!.interceptors.add(new ResponseInterceptors(0));
     }
@@ -177,6 +193,46 @@ class ZdNetUtil {
     token.cancel("cancelled");
   }
 
+  /**
+   * 无论子密钥是什么，如果主密钥匹配，请删除本地缓存
+   * path 默认情况下，host + path用作主键 
+   * 一般此处path可以忽略host 直接填写path  但是如果使用的方式不是dio配置的baseurl的host   此处也需要加上host
+   * requestMethod 请求类型 POST GET PUT DELETE
+   */
+  Future<bool> deleteCacheByPrimaryKey(
+          {required String path, String? requestMethod}) =>
+      _dioCacheManager!.deleteByPrimaryKey(path, requestMethod: requestMethod);
+
+  /**
+   * 无论子密钥是什么，如果主密钥匹配，请删除本地缓存
+   * path 默认情况下，host + path用作主键 
+   * 一般此处path可以忽略host 直接填写path  但是如果使用的方式不是dio配置的baseurl的host   此处也需要加上host
+   * requestMethod 请求类型 POST GET PUT DELETE
+   */
+  Future<bool> deleteCacheByPrimaryKeyAndSubKey(
+          {required String path,
+          String? requestMethod,
+          Map<String, dynamic>? queryParameters}) =>
+      _dioCacheManager!.deleteByPrimaryKeyAndSubKey(path,
+          requestMethod: requestMethod, queryParameters: queryParameters);
+
+  /**
+   * 
+   *  会清除所有指定primaryKey 的缓存  或者指定所有 primaryKey+ subkey 的缓存
+   *  与 deleteByPrimaryKeyAndSubKey 不同的是 此处为清除多个指定primaryKey或 primaryKey+ subkey缓存 
+   */
+  Future<bool> deleteCache(
+          {required String primaryKey,
+          String? subKey,
+          String? requestMethod}) =>
+      _dioCacheManager!
+          .delete(primaryKey, subKey: subKey, requestMethod: requestMethod);
+
+  ///清除所有本地缓存  不管有没有过期
+  Future<bool> clearAllCache() => _dioCacheManager!.clearAll();
+
+  ///清除所有已过期缓存  一般不需要调用 因为他会自己掉用
+  Future<bool> clearExpiredCache() => _dioCacheManager!.clearExpired();
   /// 自定义Header
 
   Map<String, dynamic> _zdHeaders = {
@@ -192,7 +248,30 @@ class ZdNetUtil {
   // }
 
   /*
-   * get请求
+   *  get请求
+   *    url           path路径
+   *    data          请求参数
+   *    headers       设置请求handers 有一点需要注意 如果使用自定义options则这个属性失效
+   *    options       自定义 options
+   *    cancelToken   取消请求
+   *    requiredResponse  是否需要返回Response对象返回 可以做更多操作 默认false  直接返回服务器的data数据
+   *    title         主要用于log时  格式化输出response json输出时的标题  调试使用  使用输出格式为 ----title:login/login------
+   *    useResponsePrint 主要用于log时  是否格式化输出response json输出  调试使用
+   *    startRequest  请求开始前 自定义方法  可以实现loading或者等其他功能
+   *    endRequest    请求结束时 自定义方法  
+   *    cacheMaxAge   缓存过期时间    会尝试在服务区返回hander获取
+   *    cacheMaxStale 缓存销毁时间    会尝试在服务区返回hander获取
+   *    cacheForceRefresh 
+   *    首先从网络获取数据。
+   *    如果从网络获取数据成功，存储或刷新缓存。
+   *    如果从网络获取数据失败或网络无法使用，请尝试从缓存获取数据，而不是出错。
+   * 
+   *    cacheprimaryKey      主key 可以自定义  一般为url+path
+   *    cacheSubKey          
+   *    默认使用 url 作为缓存 key ,但当 url 不够用的时候
+   *    比如 post 请求不同参数比如分页的时候，就需要配合subKey使用 index=1;
+   *    传入data
+   * 
    */
   get({
     required String url,
@@ -201,28 +280,51 @@ class ZdNetUtil {
     bool useRequestOption = false,
     Options? options,
     CancelToken? cancelToken,
+    bool requiredResponse = false,
     String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
     bool? useResponsePrint = true,
+    Duration? cacheMaxAge,
+    Duration? cacheMaxStale,
+    String? cacheprimaryKey,
+    bool? cacheForceRefresh = false,
+    String? cacheSubKey,
   }) async {
-    await _assessNetWork();
+
     Response? response;
 
     try {
       startRequest?.call();
-      response = await _dio!.get(url,
-          queryParameters: data ?? {},
+      response = await _dio!.get(
+        url,
+        queryParameters: data ?? {},
+        options: buildConfigurableCacheOptions(
+          maxAge: cacheMaxAge,
           options: useRequestOption ? options : Options(headers: headers),
-          cancelToken: cancelToken);
+          forceRefresh: cacheForceRefresh,
+          maxStale: cacheMaxStale,
+          primaryKey: cacheprimaryKey,
+          subKey: cacheSubKey,
+        ),
+        cancelToken: cancelToken,
+      );
 
       useResponsePrint!
-          ? JsonUtils.printRespond(response, titile: title ?? url)
+          ? JsonUtils.printRespond(response,
+              titile: title == null ? url : '${title}:${url}')
           : null;
     } on DioError catch (e) {}
     endRequest?.call();
-
-    return response?.data;
+    // if (null != response?.headers.value(DIO_CACHE_HEADER_KEY_DATA_SOURCE)) {
+    //   // data come from cache
+    //   LogUtils.i(
+    //       '--------cache--------${response?.headers.value(DIO_CACHE_KEY_PRIMARY_KEY)}');
+    // } else {
+    //   // data come from net
+    //   LogUtils.i('--------net--------');
+    // }
+    return requiredResponse ? response : response?.data;
   }
 
   /*
@@ -235,12 +337,18 @@ class ZdNetUtil {
     bool useRequestOption = false,
     Options? options,
     CancelToken? cancelToken,
+    bool requiredResponse = false,
     String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
     bool? useResponsePrint = true,
+    Duration? cacheMaxAge,
+    Duration? cacheMaxStale,
+    String? cacheprimaryKey,
+    bool? cacheForceRefresh = false,
+    String? cacheSubKey,
   }) async {
-    await _assessNetWork();
+ 
     Response? response;
 
     try {
@@ -248,15 +356,22 @@ class ZdNetUtil {
       response = await _dio!.post(
         url,
         data: data,
-        options: useRequestOption ? options : Options(headers: headers),
+        options: buildConfigurableCacheOptions(
+            maxAge: cacheMaxAge,
+            options: useRequestOption ? options : Options(headers: headers),
+            forceRefresh: cacheForceRefresh,
+            maxStale: cacheMaxStale,
+            primaryKey: cacheprimaryKey,
+            subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
       useResponsePrint!
-          ? JsonUtils.printRespond(response, titile: title ?? url)
+          ? JsonUtils.printRespond(response,
+              titile: title == null ? url : '${title}:${url}')
           : null;
     } on DioError catch (e) {}
     endRequest?.call();
-    return response?.data;
+    return requiredResponse ? response : response?.data;
   }
 
   /*
@@ -269,28 +384,41 @@ class ZdNetUtil {
     bool useRequestOption = false,
     Options? options,
     CancelToken? cancelToken,
+    bool requiredResponse = false,
     String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
     bool? useResponsePrint = true,
+    Duration? cacheMaxAge,
+    Duration? cacheMaxStale,
+    String? cacheprimaryKey,
+    bool? cacheForceRefresh = false,
+    String? cacheSubKey,
   }) async {
-    await _assessNetWork();
+    
     Response? response;
     try {
       startRequest?.call();
       response = await _dio!.put(
         url,
         data: data,
-        options: useRequestOption ? options : Options(headers: headers),
+        options: buildConfigurableCacheOptions(
+            maxAge: cacheMaxAge,
+            options: useRequestOption ? options : Options(headers: headers),
+            forceRefresh: cacheForceRefresh,
+            maxStale: cacheMaxStale,
+            primaryKey: cacheprimaryKey,
+            subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
       useResponsePrint!
-          ? JsonUtils.printRespond(response, titile: title ?? url)
+          ? JsonUtils.printRespond(response,
+              titile: title == null ? url : '${title}:${url}')
           : null;
       ;
     } on DioError catch (e) {}
     endRequest?.call();
-    return response?.data;
+    return requiredResponse ? response : response?.data;
   }
 
   /*
@@ -303,28 +431,41 @@ class ZdNetUtil {
     bool useRequestOption = false,
     Options? options,
     CancelToken? cancelToken,
+    bool requiredResponse = false,
     String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
     bool? useResponsePrint = true,
+    Duration? cacheMaxAge,
+    Duration? cacheMaxStale,
+    String? cacheprimaryKey,
+    bool? cacheForceRefresh = false,
+    String? cacheSubKey,
   }) async {
-    await _assessNetWork();
+    
     Response? response;
     try {
       startRequest?.call();
       response = await _dio!.delete(
         url,
         data: data,
-        options: useRequestOption ? options : Options(headers: headers),
+        options: buildConfigurableCacheOptions(
+            maxAge: cacheMaxAge,
+            options: useRequestOption ? options : Options(headers: headers),
+            forceRefresh: cacheForceRefresh,
+            maxStale: cacheMaxStale,
+            primaryKey: cacheprimaryKey,
+            subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
       useResponsePrint!
-          ? JsonUtils.printRespond(response, titile: title ?? url)
+          ? JsonUtils.printRespond(response,
+              titile: title == null ? url : '${title}:${url}')
           : null;
       ;
     } on DioError catch (e) {}
     endRequest?.call();
-    return response?.data;
+    return requiredResponse ? response : response?.data;
   }
 
 /*
@@ -338,12 +479,13 @@ class ZdNetUtil {
       bool useRequestOption = false,
       Options? options,
       CancelToken? cancelToken,
+      bool requiredResponse = false,
       String? title,
       String? imageType,
       bool useResponsePrint = true,
       ProgressCallback? onReceiveProgress,
       ProgressCallback? onSendProgress}) async {
-    await _assessNetWork();
+  
     Response? response;
 
     Map<String, dynamic> map = Map();
@@ -374,11 +516,12 @@ class ZdNetUtil {
         },
       );
       useResponsePrint
-          ? JsonUtils.printRespond(response, titile: title ?? "上传")
+          ? JsonUtils.printRespond(response,
+              titile: title == null ? "上传:" + url : '${title}:${url}')
           : null;
       ;
     } on DioError catch (e) {}
-    return response?.data;
+    return requiredResponse ? response : response?.data;
   }
 
   /*
@@ -388,17 +531,19 @@ class ZdNetUtil {
     required String urlPath,
     required String dirName,
     required String fileName,
+    CancelToken? cancelToken,
+    bool requiredResponse = false,
     String? title,
     ProgressCallback? onReceiveProgress,
     bool useResponsePrint = true,
   }) async {
-    await _assessNetWork();
+    
     Response? response;
     var path = '';
     try {
       path = await StorageUtils.getAppDocPath(
           fileName: fileName, dirName: dirName);
-      response = await _dio!.download(urlPath, path,
+      response = await _dio!.download(urlPath, path, cancelToken: cancelToken,
           onReceiveProgress: (int count, int total) {
         //进度
         ;
@@ -412,26 +557,8 @@ class ZdNetUtil {
     } on DioError catch (e) {
       print('downloadFile error---------$e');
     }
-
-    return path;
+    return requiredResponse ? response : path;
   }
 
-  /*
-   * 判断网络
-   */
-  _assessNetWork() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile) {
-      // I am connected to a mobile network.
-      LogUtils.i("I am connected to a mobile network.");
-      _mobileNetWorkCallBack?.call();
-    } else if (connectivityResult == ConnectivityResult.wifi) {
-      // I am connected to a wifi network.
-
-      _wifiNetWorkCallBack?.call();
-      LogUtils.i("I am connected to a wifi network.");
-    } else if (connectivityResult == ConnectivityResult.none) {
-      _noneNetWorkCallBack?.call();
-    }
-  }
+  
 }
