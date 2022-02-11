@@ -141,8 +141,10 @@ class ZdNetUtil {
                   tag: 'PostmanDioLoggerSimple',
                 )),
       );
-      _dioCacheManager =
-          DioCacheManager(CacheConfig(baseUrl: _baseUrl, databaseName: "zdsl"));
+      _dioCacheManager = DioCacheManager(CacheConfig(
+        baseUrl: _baseUrl,
+        databaseName: "zdsl",
+      ));
       ;
 
       ///缓存库
@@ -200,16 +202,19 @@ class ZdNetUtil {
    * path 默认情况下，host + path用作主键 
    * 一般此处path可以忽略host 直接填写path  但是如果使用的方式不是dio配置的baseurl的host   此处也需要加上host
    * requestMethod 请求类型 POST GET PUT DELETE
+   * 
+   * 
    */
   Future<bool> deleteCacheByPrimaryKey(
           {required String path, String? requestMethod}) =>
       _dioCacheManager!.deleteByPrimaryKey(path, requestMethod: requestMethod);
 
   /**
-   * 无论子密钥是什么，如果主密钥匹配，请删除本地缓存
+   * 
    * path 默认情况下，host + path用作主键 
    * 一般此处path可以忽略host 直接填写path  但是如果使用的方式不是dio配置的baseurl的host   此处也需要加上host
    * requestMethod 请求类型 POST GET PUT DELETE
+   * 如果有queryParameters 需要填上
    */
   Future<bool> deleteCacheByPrimaryKeyAndSubKey(
           {required String path,
@@ -219,9 +224,9 @@ class ZdNetUtil {
           requestMethod: requestMethod, queryParameters: queryParameters);
 
   /**
-   * 
+   *  
    *  会清除所有指定primaryKey 的缓存  或者指定所有 primaryKey+ subkey 的缓存
-   *  与 deleteByPrimaryKeyAndSubKey 不同的是 此处为清除多个指定primaryKey或 primaryKey+ subkey缓存 
+   *  
    */
   Future<bool> deleteCache(
           {required String primaryKey,
@@ -232,9 +237,6 @@ class ZdNetUtil {
 
   ///清除所有本地缓存  不管有没有过期
   Future<bool> clearAllCache() => _dioCacheManager!.clearAll();
-
-  ///清除所有已过期缓存  一般不需要调用 因为他会自己掉用
-  Future<bool> clearExpiredCache() => _dioCacheManager!.clearExpired();
 
   /// 自定义Header
 
@@ -291,7 +293,7 @@ class ZdNetUtil {
     Duration? cacheMaxAge,
     Duration? cacheMaxStale,
     String? cacheprimaryKey,
-    bool? cacheForceRefresh = false,
+    bool? cacheForceRefresh = true,
     String? cacheSubKey,
   }) async {
     Response? response;
@@ -318,14 +320,7 @@ class ZdNetUtil {
           : null;
     } on DioError catch (e) {}
     endRequest?.call();
-    // if (null != response?.headers.value(DIO_CACHE_HEADER_KEY_DATA_SOURCE)) {
-    //   // data come from cache
-    //   LogUtils.i(
-    //       '--------cache--------${response?.headers.value(DIO_CACHE_KEY_PRIMARY_KEY)}');
-    // } else {
-    //   // data come from net
-    //   LogUtils.i('--------net--------');
-    // }
+
     return requiredResponse ? response : response?.data;
   }
 

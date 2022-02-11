@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:zd_flutter_utils/log/log_utils.dart';
 
@@ -44,8 +45,19 @@ class JsonUtils {
 
   /// 接收Dio请求库返回的Response对象
   static void printRespond(Response response, {String? titile}) {
-    print(
-        "-------------------------------------------【$titile】-------------------------------------------");
+       if (null != response.headers.value(DIO_CACHE_HEADER_KEY_DATA_SOURCE)) {
+           LogUtils.i('--------comingForCache--------');
+         print(
+        "-------------------------------------------【cache-$titile】-------------------------------------------");
+     
+    } else {
+      // data come from net
+         LogUtils.i('--------comingForNet--------');
+       print(
+        "-------------------------------------------【net-$titile】-------------------------------------------");
+   
+    }
+    
     Map httpLogMap = Map();
     httpLogMap.putIfAbsent(
         "requestUrl", () => "${response.requestOptions.uri}");

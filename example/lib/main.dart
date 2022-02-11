@@ -87,7 +87,7 @@ class HomePageState extends State<HomePage> {
     LogUtils.init(tag: "yc", isDebug: true, maxLen: 128);
 
     ZdNetUtil.preInit(
-      baseUrl: "http://www.zdsen2in.com:8085/",
+      baseUrl: "s",
       connectTimeout: 10 * 1000,
       connectTimeoutCallBack: () {
         print("object-ec");

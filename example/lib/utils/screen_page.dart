@@ -35,17 +35,21 @@ class _ScreenPageState extends State<ScreenPage> {
         children: [
           InkWell(
             onTap: () async {
-              ZdNetUtil.getInstance(baseUrl: "http://www.zdsenlin.com:8085/")
-                  .get(
+              await ZdNetUtil.getInstance(
+                      baseUrl: 'http://www.zdsenlin.com:8085/')
+                  .post(
                       url: "recharge/getRecharge",
                       title: "查询",
                       data: {"name": "123"},
                       cancelToken: cancelToken,
-                      cacheMaxAge: Duration(seconds: 1),
-                      cacheMaxStale: Duration(seconds: 10),
-                      cacheForceRefresh: true);
+                      cacheMaxAge: Duration(seconds: 10),
+                      cacheMaxStale: Duration(seconds: 100),
+                      useResponsePrint: true,
+                      cacheForceRefresh: false);
               bool e = await ZdNetUtil.getInstance().deleteCacheByPrimaryKey(
-                  path: "recharge/getRecharge", requestMethod: 'GET');
+                path: 'http://www.zdsenlin.com:8085/recharge/getRecharge',
+                requestMethod: 'post',
+              );
               LogUtils.i(e);
               // ZdNetUtil.getInstance().cancelRequests(cancelToken);
 
