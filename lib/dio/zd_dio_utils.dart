@@ -4,6 +4,7 @@ import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter/foundation.dart';
+import 'package:postman_dio/models.dart';
 import 'package:postman_dio/postman_dio.dart';
 
 import 'package:zd_flutter_utils/flutter_utils.dart';
@@ -39,15 +40,19 @@ class ZdNetUtil {
   static VoidCallback? _receiveTimeoutCallBack;
   static VoidCallback? _cancelCallBack;
   static VoidCallback? _otherCallBack;
-  static VoidCallback? _responseCallBack;
   static VoidCallback? _noneNetWorkCallBack;
+
+  ///
+  /// request  response 回调
+  static VoidCallback? _responseCallBack;
+  static OnRequestCallback? _onRequestCallback;
 
   ///check网络callback
   static VoidCallback? _mobileNetWorkCallBack;
   static VoidCallback? _wifiNetWorkCallBack;
   static OnResponseCallback? _onResponseCallback;
   static Dio? _dio;
-
+  static bool _useDioLogPrint = true;
   static String? _baseUrl;
   static int? _connectTimeout;
   static int? _receiveTimeout;
@@ -77,6 +82,8 @@ class ZdNetUtil {
     VoidCallback? mobileNetWorkCallBackl,
     VoidCallback? wifiNetWorkCallBack,
     OnResponseCallback? onResponseCallback,
+    OnRequestCallback? onRequestCallback,
+    bool  useDioLogPrint=true,
   }) {
     _baseUrl = baseUrl;
     _baseHeader = header ?? _baseHeader;
@@ -94,12 +101,18 @@ class ZdNetUtil {
     _cancelCallBack = cancelCallBack;
     _otherCallBack = otherCallBack;
     _responseCallBack = responseCallBack;
+
+    ///
     _onResponseCallback = onResponseCallback;
+    _onRequestCallback = onRequestCallback;
 
     ///检查无网络操作
     _noneNetWorkCallBack = noneNetWorkCallBack;
     _mobileNetWorkCallBack = mobileNetWorkCallBackl;
     _wifiNetWorkCallBack = wifiNetWorkCallBack;
+
+    ///
+    _useDioLogPrint = useDioLogPrint;
   }
 
   // 通用全局单例初始化
@@ -127,22 +140,25 @@ class ZdNetUtil {
       _dio = new Dio(_options);
 
       _dio!.interceptors.add(new DioInterceptor(
-       
-          _connectTimeoutCallBack,
-          _sendTimeoutCallBack,
-          _receiveTimeoutCallBack,
-          _cancelCallBack,
-          _otherCallBack,
-          _responseCallBack,
-          _wifiNetWorkCallBack,
-          _noneNetWorkCallBack,
-          _mobileNetWorkCallBack, _onResponseCallback,));
+        _connectTimeoutCallBack,
+        _sendTimeoutCallBack,
+        _receiveTimeoutCallBack,
+        _cancelCallBack,
+        _otherCallBack,
+        _responseCallBack,
+        _wifiNetWorkCallBack,
+        _noneNetWorkCallBack,
+        _mobileNetWorkCallBack,
+        _onResponseCallback,
+        _onRequestCallback,
+        _useDioLogPrint,
+      ));
       _dio!.interceptors.add(
-        PostmanDioLoggerSimple(
-            logPrint: (Object object) => LogUtils.i(
+        PostmanDioLogger(
+            logPrint: (Object object) =>_useDioLogPrint? LogUtils.i(
                   object.toString(),
                   tag: 'PostmanDioLoggerSimple',
-                )),
+                ):null),
       );
       _dioCacheManager = DioCacheManager(CacheConfig(
         baseUrl: _baseUrl,
@@ -264,7 +280,6 @@ class ZdNetUtil {
    *    cancelToken   取消请求
    *    requiredResponse  是否需要返回Response对象返回 可以做更多操作 默认false  直接返回服务器的data数据
    *    title         主要用于log时  格式化输出response json输出时的标题  调试使用  使用输出格式为 ----title:login/login------
-   *    useResponsePrint 主要用于log时  是否格式化输出response json输出  调试使用
    *    startRequest  请求开始前 自定义方法  可以实现loading或者等其他功能
    *    endRequest    请求结束时 自定义方法  
    *    cacheMaxAge   缓存过期时间    会尝试在服务区返回hander获取
@@ -292,7 +307,6 @@ class ZdNetUtil {
     String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
-    bool? useResponsePrint = true,
     Duration? cacheMaxAge,
     Duration? cacheMaxStale,
     String? cacheprimaryKey,
@@ -317,7 +331,7 @@ class ZdNetUtil {
         cancelToken: cancelToken,
       );
 
-      useResponsePrint!
+      _useDioLogPrint
           ? JsonUtils.printRespond(response,
               titile: title == null ? url : '${title}:${url}')
           : null;
@@ -341,7 +355,6 @@ class ZdNetUtil {
     String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
-    bool? useResponsePrint = true,
     Duration? cacheMaxAge,
     Duration? cacheMaxStale,
     String? cacheprimaryKey,
@@ -364,7 +377,7 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      useResponsePrint!
+      _useDioLogPrint
           ? JsonUtils.printRespond(response,
               titile: title == null ? url : '${title}:${url}')
           : null;
@@ -387,7 +400,6 @@ class ZdNetUtil {
     String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
-    bool? useResponsePrint = true,
     Duration? cacheMaxAge,
     Duration? cacheMaxStale,
     String? cacheprimaryKey,
@@ -409,7 +421,7 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      useResponsePrint!
+      _useDioLogPrint
           ? JsonUtils.printRespond(response,
               titile: title == null ? url : '${title}:${url}')
           : null;
@@ -433,7 +445,6 @@ class ZdNetUtil {
     String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
-    bool? useResponsePrint = true,
     Duration? cacheMaxAge,
     Duration? cacheMaxStale,
     String? cacheprimaryKey,
@@ -455,7 +466,7 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      useResponsePrint!
+      _useDioLogPrint
           ? JsonUtils.printRespond(response,
               titile: title == null ? url : '${title}:${url}')
           : null;
@@ -479,7 +490,6 @@ class ZdNetUtil {
       bool requiredResponse = false,
       String? title,
       String? imageType,
-      bool useResponsePrint = true,
       ProgressCallback? onReceiveProgress,
       ProgressCallback? onSendProgress}) async {
     Response? response;
@@ -511,7 +521,7 @@ class ZdNetUtil {
           }
         },
       );
-      useResponsePrint
+      _useDioLogPrint
           ? JsonUtils.printRespond(response,
               titile: title == null ? "上传:" + url : '${title}:${url}')
           : null;
@@ -531,7 +541,6 @@ class ZdNetUtil {
     bool requiredResponse = false,
     String? title,
     ProgressCallback? onReceiveProgress,
-    bool useResponsePrint = true,
   }) async {
     Response? response;
     var path = '';
@@ -542,7 +551,7 @@ class ZdNetUtil {
           onReceiveProgress: (int count, int total) {
         //进度
         ;
-        useResponsePrint
+        _useDioLogPrint
             ? LogUtils.d("下载进度:$count $total", tag: "DownloadFile")
             : null;
         if (onReceiveProgress != null) {
