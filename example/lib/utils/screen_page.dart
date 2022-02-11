@@ -26,6 +26,12 @@ class _ScreenPageState extends State<ScreenPage> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(
+        BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width,
+            maxHeight: MediaQuery.of(context).size.height),
+        designSize: Size(375, 812),
+        orientation: Orientation.portrait);
     return Scaffold(
       appBar: new AppBar(
         title: new Text("屏幕适配工具类"),
@@ -65,6 +71,7 @@ class _ScreenPageState extends State<ScreenPage> {
               setState(() {});
             },
             child: Container(
+              alignment: Alignment.centerLeft,
               height: 200,
               width: 200,
               decoration: BoxDecoration(
@@ -75,15 +82,31 @@ class _ScreenPageState extends State<ScreenPage> {
               ),
             ),
           ),
-          Container(
-            height: 200.w,
-            width: 200.h,
-            decoration: BoxDecoration(
-                color: Colors.green, borderRadius: BorderRadius.circular(12.r)),
-            child: Text(
-              "适配后",
-              style: TextStyle(fontSize: 12.sp),
-            ),
+          Row(
+            children: [
+              Container(
+                height: 200.w,
+                width: 200.w,
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                ),
+                child: Text(
+                  "适配后",
+                  style: TextStyle(fontSize: 15.sp),
+                ),
+              ),
+              Container(
+                height: 200.w,
+                width: 175.w,
+                decoration: BoxDecoration(
+                  color: Colors.amber,
+                ),
+                child: Text(
+                  "适配后",
+                  style: TextStyle(fontSize: 12.sp),
+                ),
+              ),
+            ],
           ),
           Image.asset(path)
         ],

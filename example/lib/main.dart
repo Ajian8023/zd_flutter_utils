@@ -94,6 +94,12 @@ class HomePageState extends State<HomePage> {
 
         EasyLoading.showToast("status");
       },
+      onResponseCallback: (_) {
+        if (_.data?['code'] == 200) {
+          LogUtils.i(
+              '--------------------${_.statusCode}---------${_.statusMessage}--------${_.headers.toString()}---------------');
+        }
+      },
       cancelCallBack: () => EasyLoading.showToast("eee"),
     );
     ZdNetUtil.getInstance;

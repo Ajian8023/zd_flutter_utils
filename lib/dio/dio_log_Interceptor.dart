@@ -4,7 +4,9 @@ import 'package:zd_flutter_utils/flutter_utils.dart';
 import 'dart:core';
 import 'dart:ui';
 
-class DioLogInterceptor extends Interceptor {
+typedef OnResponseCallback = void Function(Response response);
+
+class DioInterceptor extends Interceptor {
   VoidCallback? _connectTimeoutCallBack;
   VoidCallback? _sendTimeoutCallBack;
   VoidCallback? _receiveTimeoutCallBack;
@@ -13,8 +15,9 @@ class DioLogInterceptor extends Interceptor {
   VoidCallback? _responseCallBack;
   VoidCallback? _wifiNetWorkCallBack;
   VoidCallback? _noneNetWorkCallBack;
-   VoidCallback?  _mobileNetWorkCallBack;
-  DioLogInterceptor(
+  VoidCallback? _mobileNetWorkCallBack;
+  OnResponseCallback? _onResponseCallback;
+  DioInterceptor(
       this._connectTimeoutCallBack,
       this._sendTimeoutCallBack,
       this._receiveTimeoutCallBack,
@@ -22,15 +25,16 @@ class DioLogInterceptor extends Interceptor {
       this._otherCallBack,
       this._responseCallBack,
       this._wifiNetWorkCallBack,
-      this._noneNetWorkCallBack
-      ,this._mobileNetWorkCallBack);
+      this._noneNetWorkCallBack,
+      this._mobileNetWorkCallBack,
+      this._onResponseCallback);
 
   onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
     _assessNetWork();
-    
+
     LogUtils.i("请求URL :" + options.baseUrl, tag: "ZdNetRequest");
     LogUtils.i("请求方法 :" + options.path, tag: "ZdNetRequest");
     LogUtils.i("请求类型 :" + options.method, tag: "ZdNetRequest");
@@ -46,6 +50,16 @@ class DioLogInterceptor extends Interceptor {
     }
 
     return handler.next(options);
+  }
+
+  void onResponse(
+    Response response,
+    ResponseInterceptorHandler handler,
+  ) {
+   if(_onResponseCallback!=null){
+      _onResponseCallback!(response);
+   }
+    return handler.next(response);
   }
 
   void onError(

@@ -45,7 +45,7 @@ class ZdNetUtil {
   ///check网络callback
   static VoidCallback? _mobileNetWorkCallBack;
   static VoidCallback? _wifiNetWorkCallBack;
-
+  static OnResponseCallback? _onResponseCallback;
   static Dio? _dio;
 
   static String? _baseUrl;
@@ -76,6 +76,7 @@ class ZdNetUtil {
     VoidCallback? noneNetWorkCallBack,
     VoidCallback? mobileNetWorkCallBackl,
     VoidCallback? wifiNetWorkCallBack,
+    OnResponseCallback? onResponseCallback,
   }) {
     _baseUrl = baseUrl;
     _baseHeader = header ?? _baseHeader;
@@ -93,6 +94,7 @@ class ZdNetUtil {
     _cancelCallBack = cancelCallBack;
     _otherCallBack = otherCallBack;
     _responseCallBack = responseCallBack;
+    _onResponseCallback = onResponseCallback;
 
     ///检查无网络操作
     _noneNetWorkCallBack = noneNetWorkCallBack;
@@ -124,7 +126,8 @@ class ZdNetUtil {
 
       _dio = new Dio(_options);
 
-      _dio!.interceptors.add(new DioLogInterceptor(
+      _dio!.interceptors.add(new DioInterceptor(
+       
           _connectTimeoutCallBack,
           _sendTimeoutCallBack,
           _receiveTimeoutCallBack,
@@ -133,7 +136,7 @@ class ZdNetUtil {
           _responseCallBack,
           _wifiNetWorkCallBack,
           _noneNetWorkCallBack,
-          _mobileNetWorkCallBack));
+          _mobileNetWorkCallBack, _onResponseCallback,));
       _dio!.interceptors.add(
         PostmanDioLoggerSimple(
             logPrint: (Object object) => LogUtils.i(
@@ -271,11 +274,11 @@ class ZdNetUtil {
    *    如果从网络获取数据成功，存储或刷新缓存。
    *    如果从网络获取数据失败或网络无法使用，请尝试从缓存获取数据，而不是出错。
    * 
-   *    cacheprimaryKey      主key 可以自定义  一般为url+path
-   *    cacheSubKey          
+   *    cacheprimaryKey      指定主key 可以自定义  默认情况下，host + path用作主键  
+   *    cacheSubKey           指定subkey   
    *    默认使用 url 作为缓存 key ,但当 url 不够用的时候
-   *    比如 post 请求不同参数比如分页的时候，就需要配合subKey使用 index=1;
-   *    传入data
+   *    比如 post 请求不同参数比如分页的时候，就需要配合subKey使用
+   *    
    * 
    */
   get({
