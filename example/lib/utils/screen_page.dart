@@ -1,11 +1,9 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:zd_flutter_utils/dio/zd_dio_utils.dart';
-import 'package:zd_flutter_utils/flutter_utils.dart';
-import 'package:zd_flutter_utils/screen/flutter_screenutil.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:zd_flutter_utils/dio/zd_dio_utils.dart';
+import 'package:zd_flutter_utils/screen/flutter_screenutil.dart';
 
 class ScreenPage extends StatefulWidget {
   const ScreenPage({Key? key}) : super(key: key);
@@ -48,15 +46,10 @@ class _ScreenPageState extends State<ScreenPage> {
                       title: "查询",
                       data: {"name": "123"},
                       cancelToken: cancelToken,
-                      cacheMaxAge: Duration(seconds: 10),
+                      cacheMaxAge: Duration(seconds: 100),
                       cacheMaxStale: Duration(seconds: 100),
-                      useResponsePrint: true,
                       cacheForceRefresh: false);
-              bool e = await ZdNetUtil.getInstance().deleteCacheByPrimaryKey(
-                path: 'http://www.zdsenlin.com:8085/recharge/getRecharge',
-                requestMethod: 'post',
-              );
-              LogUtils.i(e);
+
               // ZdNetUtil.getInstance().cancelRequests(cancelToken);
 
               // var e = await ZdNetUtil.getInstance(

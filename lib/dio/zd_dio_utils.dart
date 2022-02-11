@@ -1,12 +1,7 @@
-import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/foundation.dart';
-
-import 'package:flutter/foundation.dart';
-import 'package:postman_dio/models.dart';
 import 'package:postman_dio/postman_dio.dart';
-
 import 'package:zd_flutter_utils/flutter_utils.dart';
 
 import 'dio_log_Interceptor.dart';
@@ -83,7 +78,7 @@ class ZdNetUtil {
     VoidCallback? wifiNetWorkCallBack,
     OnResponseCallback? onResponseCallback,
     OnRequestCallback? onRequestCallback,
-    bool  useDioLogPrint=true,
+    bool useDioLogPrint = true,
   }) {
     _baseUrl = baseUrl;
     _baseHeader = header ?? _baseHeader;
@@ -155,10 +150,12 @@ class ZdNetUtil {
       ));
       _dio!.interceptors.add(
         PostmanDioLogger(
-            logPrint: (Object object) =>_useDioLogPrint? LogUtils.i(
-                  object.toString(),
-                  tag: 'PostmanDioLoggerSimple',
-                ):null),
+            logPrint: (Object object) => _useDioLogPrint
+                ? LogUtils.i(
+                    object.toString(),
+                    tag: 'PostmanDioLoggerSimple',
+                  )
+                : null),
       );
       _dioCacheManager = DioCacheManager(CacheConfig(
         baseUrl: _baseUrl,
@@ -358,7 +355,7 @@ class ZdNetUtil {
     Duration? cacheMaxAge,
     Duration? cacheMaxStale,
     String? cacheprimaryKey,
-    bool? cacheForceRefresh = false,
+    bool? cacheForceRefresh = true,
     String? cacheSubKey,
   }) async {
     Response? response;
@@ -403,7 +400,7 @@ class ZdNetUtil {
     Duration? cacheMaxAge,
     Duration? cacheMaxStale,
     String? cacheprimaryKey,
-    bool? cacheForceRefresh = false,
+    bool? cacheForceRefresh = true,
     String? cacheSubKey,
   }) async {
     Response? response;
@@ -448,7 +445,7 @@ class ZdNetUtil {
     Duration? cacheMaxAge,
     Duration? cacheMaxStale,
     String? cacheprimaryKey,
-    bool? cacheForceRefresh = false,
+    bool? cacheForceRefresh = true,
     String? cacheSubKey,
   }) async {
     Response? response;
