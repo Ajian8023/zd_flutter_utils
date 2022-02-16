@@ -291,7 +291,7 @@ class ZdNetUtil {
    *    默认使用 url 作为缓存 key ,但当 url 不够用的时候
    *    比如 post 请求不同参数比如分页的时候，就需要配合subKey使用
    *    
-   * 
+   *    requestDioLogPrint 方法级输出
    */
   get({
     required String url,
@@ -305,6 +305,7 @@ class ZdNetUtil {
     VoidCallback? startRequest,
     VoidCallback? endRequest,
     Duration? cacheMaxAge,
+    bool requestDioLogPrint = true,
     Duration? cacheMaxStale,
     String? cacheprimaryKey,
     bool? cacheForceRefresh = true,
@@ -328,7 +329,7 @@ class ZdNetUtil {
         cancelToken: cancelToken,
       );
 
-      _useDioLogPrint
+      _useDioLogPrint && requestDioLogPrint
           ? JsonUtils.printRespond(response,
               titile: title == null ? url : '${title}:${url}')
           : null;
@@ -352,6 +353,7 @@ class ZdNetUtil {
     String? title,
     VoidCallback? startRequest,
     VoidCallback? endRequest,
+    bool requestDioLogPrint = true,
     Duration? cacheMaxAge,
     Duration? cacheMaxStale,
     String? cacheprimaryKey,
@@ -374,7 +376,7 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      _useDioLogPrint
+      _useDioLogPrint && requestDioLogPrint
           ? JsonUtils.printRespond(response,
               titile: title == null ? url : '${title}:${url}')
           : null;
@@ -391,6 +393,7 @@ class ZdNetUtil {
     dynamic data,
     Map<String, dynamic>? headers,
     bool useRequestOption = false,
+    bool requestDioLogPrint = true,
     Options? options,
     CancelToken? cancelToken,
     bool requiredResponse = false,
@@ -418,7 +421,7 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      _useDioLogPrint
+      _useDioLogPrint && requestDioLogPrint
           ? JsonUtils.printRespond(response,
               titile: title == null ? url : '${title}:${url}')
           : null;
@@ -435,6 +438,7 @@ class ZdNetUtil {
     required String url,
     dynamic data,
     Map<String, dynamic>? headers,
+    bool requestDioLogPrint = true,
     bool useRequestOption = false,
     Options? options,
     CancelToken? cancelToken,
@@ -463,7 +467,7 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      _useDioLogPrint
+      _useDioLogPrint && requestDioLogPrint
           ? JsonUtils.printRespond(response,
               titile: title == null ? url : '${title}:${url}')
           : null;
@@ -484,6 +488,7 @@ class ZdNetUtil {
       bool useRequestOption = false,
       Options? options,
       CancelToken? cancelToken,
+      bool requestDioLogPrint = true,
       bool requiredResponse = false,
       String? title,
       String? imageType,
@@ -518,7 +523,7 @@ class ZdNetUtil {
           }
         },
       );
-      _useDioLogPrint
+      _useDioLogPrint && requestDioLogPrint
           ? JsonUtils.printRespond(response,
               titile: title == null ? "上传:" + url : '${title}:${url}')
           : null;
@@ -534,6 +539,7 @@ class ZdNetUtil {
     required String urlPath,
     required String dirName,
     required String fileName,
+    bool requestDioLogPrint = true,
     CancelToken? cancelToken,
     bool requiredResponse = false,
     String? title,
@@ -548,7 +554,7 @@ class ZdNetUtil {
           onReceiveProgress: (int count, int total) {
         //进度
         ;
-        _useDioLogPrint
+        _useDioLogPrint && requestDioLogPrint
             ? LogUtils.d("下载进度:$count $total", tag: "DownloadFile")
             : null;
         if (onReceiveProgress != null) {
