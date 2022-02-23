@@ -359,6 +359,7 @@ class ZdNetUtil {
     String? cacheprimaryKey,
     bool? cacheForceRefresh = true,
     String? cacheSubKey,
+    Map<String, dynamic>? queryParameters,
   }) async {
     Response? response;
 
@@ -367,6 +368,7 @@ class ZdNetUtil {
       response = await _dio!.post(
         url,
         data: data,
+        queryParameters: queryParameters,
         options: buildConfigurableCacheOptions(
             maxAge: cacheMaxAge,
             options: useRequestOption ? options : Options(headers: headers),
@@ -391,6 +393,7 @@ class ZdNetUtil {
   put({
     required String url,
     dynamic data,
+    Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     bool useRequestOption = false,
     bool requestDioLogPrint = true,
@@ -412,6 +415,7 @@ class ZdNetUtil {
       response = await _dio!.put(
         url,
         data: data,
+        queryParameters: queryParameters,
         options: buildConfigurableCacheOptions(
             maxAge: cacheMaxAge,
             options: useRequestOption ? options : Options(headers: headers),
@@ -437,6 +441,7 @@ class ZdNetUtil {
   delete({
     required String url,
     dynamic data,
+    Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     bool requestDioLogPrint = true,
     bool useRequestOption = false,
@@ -458,6 +463,7 @@ class ZdNetUtil {
       response = await _dio!.delete(
         url,
         data: data,
+        queryParameters: queryParameters,
         options: buildConfigurableCacheOptions(
             maxAge: cacheMaxAge,
             options: useRequestOption ? options : Options(headers: headers),
@@ -484,6 +490,7 @@ class ZdNetUtil {
       {required String url,
       required String path,
       required String imageName,
+      Map<String, dynamic>? queryParameters,
       Map<String, dynamic>? headers,
       bool useRequestOption = false,
       Options? options,
@@ -510,6 +517,7 @@ class ZdNetUtil {
       response = await _dio!.post(
         url,
         data: formData,
+        queryParameters: queryParameters,
         options: useRequestOption ? options : Options(headers: headers),
         cancelToken: cancelToken,
         onReceiveProgress: (count, total) {
@@ -539,6 +547,7 @@ class ZdNetUtil {
     required String urlPath,
     required String dirName,
     required String fileName,
+    Map<String, dynamic>? queryParameters,
     bool requestDioLogPrint = true,
     CancelToken? cancelToken,
     bool requiredResponse = false,
@@ -550,7 +559,8 @@ class ZdNetUtil {
     try {
       path = await StorageUtils.getAppDocPath(
           fileName: fileName, dirName: dirName);
-      response = await _dio!.download(urlPath, path, cancelToken: cancelToken,
+      response = await _dio!.download(urlPath, path,
+          cancelToken: cancelToken, queryParameters: queryParameters,
           onReceiveProgress: (int count, int total) {
         //进度
         ;
