@@ -504,7 +504,7 @@ class ZdNetUtil {
     Response? response;
 
     Map<String, dynamic> map = Map();
-    if (ObjectUtils.isEmptyString(imageType)) {
+    if (!ObjectUtils.isEmptyString(imageType)) {
       map["file"] =
           await MultipartFile.fromFile(path, filename: imageName + imageType!);
     } else {
