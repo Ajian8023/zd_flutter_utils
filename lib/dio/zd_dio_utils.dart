@@ -189,7 +189,7 @@ class ZdNetUtil {
   }
 
   ///可指定域名
-  ZdNetUtil getInstance({String? baseUrl}) {
+  static ZdNetUtil getInstance({String? baseUrl}) {
     //initPackageInfo();
     if (baseUrl == null) {
       return _instance._normal();
