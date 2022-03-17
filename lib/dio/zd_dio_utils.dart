@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/foundation.dart';
@@ -39,7 +36,6 @@ class ZdNetUtil {
   static VoidCallback? _cancelCallBack;
   static VoidCallback? _otherCallBack;
   static VoidCallback? _noneNetWorkCallBack;
-  static bool _debugFiddler = false;
 
   ///
   /// request  response 回调
@@ -60,8 +56,8 @@ class ZdNetUtil {
   static Map<String, dynamic>? _baseHeader;
   static String? _contentType;
   /*
-   * 必须初始化
-   * baseUrl:基础网络请求连接
+   * 必须初始化 
+   * baseUrl:基础网络请求连接。
    * */
 
   static preInit({
@@ -69,7 +65,6 @@ class ZdNetUtil {
     Map<String, dynamic>? header,
     int? connectTimeout,
     int? receiveTimeout,
-    bool debugFiddler = false,
     String? contentType,
     ResponseType? responseType,
     VoidCallback? connectTimeoutCallBack,
@@ -101,8 +96,6 @@ class ZdNetUtil {
     _cancelCallBack = cancelCallBack;
     _otherCallBack = otherCallBack;
     _responseCallBack = responseCallBack;
-
-    _debugFiddler = debugFiddler;
 
     ///
     _onResponseCallback = onResponseCallback;
@@ -173,16 +166,6 @@ class ZdNetUtil {
       ///缓存库
       _dio!.interceptors.add(_dioCacheManager!.interceptor);
 
-      if (_debugFiddler) {
-        // Fiddler抓包设置代理
-        (_dio?.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-          client.findProxy = (url) {
-            return "PROXY 192.168.1.9:8888";
-          };
-          //抓Https包设置
-          client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-        };
-      }
 //      _dio.interceptors.add(new PrettyDioLogger());
       //_dio!.interceptors.add(new ResponseInterceptors(0));
     }
