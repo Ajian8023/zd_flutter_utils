@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/foundation.dart';
@@ -36,6 +39,7 @@ class ZdNetUtil {
   static VoidCallback? _cancelCallBack;
   static VoidCallback? _otherCallBack;
   static VoidCallback? _noneNetWorkCallBack;
+  static bool _debugFiddler = false;
 
   ///
   /// request  response 回调
@@ -56,7 +60,7 @@ class ZdNetUtil {
   static Map<String, dynamic>? _baseHeader;
   static String? _contentType;
   /*
-   * 必须初始化 
+   * 必须初始化
    * baseUrl:基础网络请求连接
    * */
 
@@ -65,6 +69,7 @@ class ZdNetUtil {
     Map<String, dynamic>? header,
     int? connectTimeout,
     int? receiveTimeout,
+    bool debugFiddler = false,
     String? contentType,
     ResponseType? responseType,
     VoidCallback? connectTimeoutCallBack,
@@ -96,6 +101,8 @@ class ZdNetUtil {
     _cancelCallBack = cancelCallBack;
     _otherCallBack = otherCallBack;
     _responseCallBack = responseCallBack;
+
+    _debugFiddler = debugFiddler;
 
     ///
     _onResponseCallback = onResponseCallback;
@@ -166,13 +173,23 @@ class ZdNetUtil {
       ///缓存库
       _dio!.interceptors.add(_dioCacheManager!.interceptor);
 
+      if (_debugFiddler) {
+        // Fiddler抓包设置代理
+        (_dio?.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+          client.findProxy = (url) {
+            return "PROXY 192.168.1.9:8888";
+          };
+          //抓Https包设置
+          client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+        };
+      }
 //      _dio.interceptors.add(new PrettyDioLogger());
       //_dio!.interceptors.add(new ResponseInterceptors(0));
     }
   }
 
   ///可指定域名
-  static ZdNetUtil getInstance({String? baseUrl}) {
+  ZdNetUtil getInstance({String? baseUrl}) {
     //initPackageInfo();
     if (baseUrl == null) {
       return _instance._normal();
@@ -221,35 +238,26 @@ class ZdNetUtil {
    * 
    * 
    */
-  Future<bool> deleteCacheByPrimaryKey(
-          {required String path, String? requestMethod}) =>
+  Future<bool> deleteCacheByPrimaryKey({required String path, String? requestMethod}) =>
       _dioCacheManager!.deleteByPrimaryKey(path, requestMethod: requestMethod);
 
   /**
-   * 
-   * path 默认情况下，host + path用作主键 
+   *
+   * path 默认情况下，host + path用作主键
    * 一般此处path可以忽略host 直接填写path  但是如果使用的方式不是dio配置的baseurl的host   此处也需要加上host
    * requestMethod 请求类型 POST GET PUT DELETE
    * 如果有queryParameters 需要填上
    */
-  Future<bool> deleteCacheByPrimaryKeyAndSubKey(
-          {required String path,
-          String? requestMethod,
-          Map<String, dynamic>? queryParameters}) =>
-      _dioCacheManager!.deleteByPrimaryKeyAndSubKey(path,
-          requestMethod: requestMethod, queryParameters: queryParameters);
+  Future<bool> deleteCacheByPrimaryKeyAndSubKey({required String path, String? requestMethod, Map<String, dynamic>? queryParameters}) =>
+      _dioCacheManager!.deleteByPrimaryKeyAndSubKey(path, requestMethod: requestMethod, queryParameters: queryParameters);
 
   /**
-   *  
+   *
    *  会清除所有指定primaryKey 的缓存  或者指定所有 primaryKey+ subkey 的缓存
-   *  
+   *
    */
-  Future<bool> deleteCache(
-          {required String primaryKey,
-          String? subKey,
-          String? requestMethod}) =>
-      _dioCacheManager!
-          .delete(primaryKey, subKey: subKey, requestMethod: requestMethod);
+  Future<bool> deleteCache({required String primaryKey, String? subKey, String? requestMethod}) =>
+      _dioCacheManager!.delete(primaryKey, subKey: subKey, requestMethod: requestMethod);
 
   ///清除所有本地缓存  不管有没有过期
   Future<bool> clearAllCache() => _dioCacheManager!.clearAll();
@@ -278,19 +286,19 @@ class ZdNetUtil {
    *    requiredResponse  是否需要返回Response对象返回 可以做更多操作 默认false  直接返回服务器的data数据
    *    title         主要用于log时  格式化输出response json输出时的标题  调试使用  使用输出格式为 ----title:login/login------
    *    startRequest  请求开始前 自定义方法  可以实现loading或者等其他功能
-   *    endRequest    请求结束时 自定义方法  
+   *    endRequest    请求结束时 自定义方法
    *    cacheMaxAge   缓存过期时间    会尝试在服务区返回hander获取
    *    cacheMaxStale 缓存销毁时间    会尝试在服务区返回hander获取
-   *    cacheForceRefresh 
+   *    cacheForceRefresh
    *    首先从网络获取数据。
    *    如果从网络获取数据成功，存储或刷新缓存。
    *    如果从网络获取数据失败或网络无法使用，请尝试从缓存获取数据，而不是出错。
-   * 
-   *    cacheprimaryKey      指定主key 可以自定义  默认情况下，host + path用作主键  
-   *    cacheSubKey           指定subkey   
+   *
+   *    cacheprimaryKey      指定主key 可以自定义  默认情况下，host + path用作主键
+   *    cacheSubKey           指定subkey
    *    默认使用 url 作为缓存 key ,但当 url 不够用的时候
    *    比如 post 请求不同参数比如分页的时候，就需要配合subKey使用
-   *    
+   *
    *    requestDioLogPrint 方法级输出
    */
   get({
@@ -329,10 +337,7 @@ class ZdNetUtil {
         cancelToken: cancelToken,
       );
 
-      _useDioLogPrint && requestDioLogPrint
-          ? JsonUtils.printRespond(response,
-              titile: title == null ? url : '${title}:${url}')
-          : null;
+      _useDioLogPrint && requestDioLogPrint ? JsonUtils.printRespond(response, titile: title == null ? url : '${title}:${url}') : null;
     } on DioError catch (e) {}
     endRequest?.call();
 
@@ -378,10 +383,7 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      _useDioLogPrint && requestDioLogPrint
-          ? JsonUtils.printRespond(response,
-              titile: title == null ? url : '${title}:${url}')
-          : null;
+      _useDioLogPrint && requestDioLogPrint ? JsonUtils.printRespond(response, titile: title == null ? url : '${title}:${url}') : null;
     } on DioError catch (e) {}
     endRequest?.call();
     return requiredResponse ? response : response?.data;
@@ -425,10 +427,7 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      _useDioLogPrint && requestDioLogPrint
-          ? JsonUtils.printRespond(response,
-              titile: title == null ? url : '${title}:${url}')
-          : null;
+      _useDioLogPrint && requestDioLogPrint ? JsonUtils.printRespond(response, titile: title == null ? url : '${title}:${url}') : null;
       ;
     } on DioError catch (e) {}
     endRequest?.call();
@@ -473,10 +472,7 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      _useDioLogPrint && requestDioLogPrint
-          ? JsonUtils.printRespond(response,
-              titile: title == null ? url : '${title}:${url}')
-          : null;
+      _useDioLogPrint && requestDioLogPrint ? JsonUtils.printRespond(response, titile: title == null ? url : '${title}:${url}') : null;
       ;
     } on DioError catch (e) {}
     endRequest?.call();
@@ -505,11 +501,9 @@ class ZdNetUtil {
 
     Map<String, dynamic> map = Map();
     if (!ObjectUtils.isEmptyString(imageType)) {
-      map["file"] =
-          await MultipartFile.fromFile(path, filename: imageName + imageType!);
+      map["file"] = await MultipartFile.fromFile(path, filename: imageName + imageType!);
     } else {
-      map["file"] =
-          await MultipartFile.fromFile(path, filename: imageName + ".png");
+      map["file"] = await MultipartFile.fromFile(path, filename: imageName + ".png");
     }
 
     FormData formData = FormData.fromMap(map);
@@ -532,8 +526,7 @@ class ZdNetUtil {
         },
       );
       _useDioLogPrint && requestDioLogPrint
-          ? JsonUtils.printRespond(response,
-              titile: title == null ? "上传:" + url : '${title}:${url}')
+          ? JsonUtils.printRespond(response, titile: title == null ? "上传:" + url : '${title}:${url}')
           : null;
       ;
     } on DioError catch (e) {}
@@ -557,16 +550,12 @@ class ZdNetUtil {
     Response? response;
     var path = '';
     try {
-      path = await StorageUtils.getAppDocPath(
-          fileName: fileName, dirName: dirName);
-      response = await _dio!.download(urlPath, path,
-          cancelToken: cancelToken, queryParameters: queryParameters,
+      path = await StorageUtils.getAppDocPath(fileName: fileName, dirName: dirName);
+      response = await _dio!.download(urlPath, path, cancelToken: cancelToken, queryParameters: queryParameters,
           onReceiveProgress: (int count, int total) {
         //进度
         ;
-        _useDioLogPrint && requestDioLogPrint
-            ? LogUtils.d("下载进度:$count $total", tag: "DownloadFile")
-            : null;
+        _useDioLogPrint && requestDioLogPrint ? LogUtils.d("下载进度:$count $total", tag: "DownloadFile") : null;
         if (onReceiveProgress != null) {
           onReceiveProgress(count, total);
         }
