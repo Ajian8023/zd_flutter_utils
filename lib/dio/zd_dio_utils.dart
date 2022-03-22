@@ -28,7 +28,7 @@ class ZdNetUtil {
   BaseOptions? _options;
   static String _appName = '';
   static String _version = '';
-  static String _findProxyUrl = '127.0.0.1';
+  static String _findProxyUrl = '127.0.0.1:8888';
 
   ///错误处理
   static VoidCallback? _connectTimeoutCallBack;
@@ -71,7 +71,7 @@ class ZdNetUtil {
     int? connectTimeout,
     int? receiveTimeout,
     String? contentType,
-    String findProxyUrl,
+    String findProxyUrl = '127.0.0.1:8888',
     bool findProxy = false,
     ResponseType? responseType,
     VoidCallback? connectTimeoutCallBack,
