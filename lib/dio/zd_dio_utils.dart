@@ -1,3 +1,4 @@
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/foundation.dart';
@@ -165,6 +166,11 @@ class ZdNetUtil {
 
       ///缓存库
       _dio!.interceptors.add(_dioCacheManager!.interceptor);
+      (_dio!.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+        client.badCertificateCallback = (cert, host, port) {
+          return true;
+        };
+      };
 
 //      _dio.interceptors.add(new PrettyDioLogger());
       //_dio!.interceptors.add(new ResponseInterceptors(0));
