@@ -28,6 +28,7 @@ class ZdNetUtil {
   BaseOptions? _options;
   static String _appName = '';
   static String _version = '';
+  static String _findProxyUrl = '127.0.0.1';
 
   ///错误处理
   static VoidCallback? _connectTimeoutCallBack;
@@ -43,6 +44,9 @@ class ZdNetUtil {
   static VoidCallback? _responseCallBack;
   static OnRequestCallback? _onRequestCallback;
 
+  ///抓包
+  static bool _findProxy = false;
+
   ///check网络callback
   static VoidCallback? _mobileNetWorkCallBack;
   static VoidCallback? _wifiNetWorkCallBack;
@@ -57,7 +61,7 @@ class ZdNetUtil {
   static Map<String, dynamic>? _baseHeader;
   static String? _contentType;
   /*
-   * 必须初始化 
+   * 必须初始化
    * baseUrl:基础网络请求连接。
    * */
 
@@ -67,6 +71,8 @@ class ZdNetUtil {
     int? connectTimeout,
     int? receiveTimeout,
     String? contentType,
+    String findProxyUrl,
+    bool findProxy = false,
     ResponseType? responseType,
     VoidCallback? connectTimeoutCallBack,
     VoidCallback? sendTimeoutCallBack,
@@ -87,6 +93,9 @@ class ZdNetUtil {
     _receiveTimeout = receiveTimeout;
     _responseType = responseType;
     _contentType = contentType;
+
+    _findProxy = findProxy;
+    _findProxyUrl = findProxyUrl;
 
     ///errorCallBack
     ///
@@ -170,6 +179,12 @@ class ZdNetUtil {
         client.badCertificateCallback = (cert, host, port) {
           return true;
         };
+
+        if (_findProxy) {
+          client.findProxy = (url) {
+            return "PROXY ${_findProxyUrl}";
+          };
+        }
       };
 
 //      _dio.interceptors.add(new PrettyDioLogger());
