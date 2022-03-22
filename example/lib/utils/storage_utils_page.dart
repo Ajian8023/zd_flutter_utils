@@ -116,8 +116,7 @@ class _PageState extends State<StoragePage> {
   }
 
   void click4() async {
-    Directory appDocDir =
-        await StorageUtils.createAppDocDir(dirName: "haha.txt");
+    Directory appDocDir = await StorageUtils.createAppDocDir(dirName: "haha.txt");
     setState(() {
       string4 = appDocDir.path;
     });

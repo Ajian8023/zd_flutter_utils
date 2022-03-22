@@ -16,7 +16,7 @@ import 'dio_log_Interceptor.dart';
  *  - 统一打印请求信息；
  *  - 统一打印响应信息；
  *  - 统一打印报错信息；
- *  
+ *
  */
 typedef ProgressCallback = void Function(int count, int total);
 
@@ -175,11 +175,15 @@ class ZdNetUtil {
 
       ///缓存库
       _dio!.interceptors.add(_dioCacheManager!.interceptor);
+
+      ///
       (_dio!.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+        /// 过https 证书
         client.badCertificateCallback = (cert, host, port) {
           return true;
         };
 
+        ///代理
         if (_findProxy) {
           client.findProxy = (url) {
             return "PROXY ${_findProxyUrl}";
@@ -236,11 +240,11 @@ class ZdNetUtil {
 
   /**
    * 无论子密钥是什么，如果主密钥匹配，请删除本地缓存
-   * path 默认情况下，host + path用作主键 
+   * path 默认情况下，host + path用作主键
    * 一般此处path可以忽略host 直接填写path  但是如果使用的方式不是dio配置的baseurl的host   此处也需要加上host
    * requestMethod 请求类型 POST GET PUT DELETE
-   * 
-   * 
+   *
+   *
    */
   Future<bool> deleteCacheByPrimaryKey({required String path, String? requestMethod}) =>
       _dioCacheManager!.deleteByPrimaryKey(path, requestMethod: requestMethod);
