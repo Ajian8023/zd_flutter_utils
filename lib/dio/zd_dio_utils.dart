@@ -177,7 +177,8 @@ class ZdNetUtil {
       _dio!.interceptors.add(_dioCacheManager!.interceptor);
 
       ///
-      (_dio!.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+      (_dio!.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+          (client) {
         /// 过https 证书
         client.badCertificateCallback = (cert, host, port) {
           return true;
@@ -246,7 +247,8 @@ class ZdNetUtil {
    *
    *
    */
-  Future<bool> deleteCacheByPrimaryKey({required String path, String? requestMethod}) =>
+  Future<bool> deleteCacheByPrimaryKey(
+          {required String path, String? requestMethod}) =>
       _dioCacheManager!.deleteByPrimaryKey(path, requestMethod: requestMethod);
 
   /**
@@ -256,16 +258,24 @@ class ZdNetUtil {
    * requestMethod 请求类型 POST GET PUT DELETE
    * 如果有queryParameters 需要填上
    */
-  Future<bool> deleteCacheByPrimaryKeyAndSubKey({required String path, String? requestMethod, Map<String, dynamic>? queryParameters}) =>
-      _dioCacheManager!.deleteByPrimaryKeyAndSubKey(path, requestMethod: requestMethod, queryParameters: queryParameters);
+  Future<bool> deleteCacheByPrimaryKeyAndSubKey(
+          {required String path,
+          String? requestMethod,
+          Map<String, dynamic>? queryParameters}) =>
+      _dioCacheManager!.deleteByPrimaryKeyAndSubKey(path,
+          requestMethod: requestMethod, queryParameters: queryParameters);
 
   /**
    *
    *  会清除所有指定primaryKey 的缓存  或者指定所有 primaryKey+ subkey 的缓存
    *
    */
-  Future<bool> deleteCache({required String primaryKey, String? subKey, String? requestMethod}) =>
-      _dioCacheManager!.delete(primaryKey, subKey: subKey, requestMethod: requestMethod);
+  Future<bool> deleteCache(
+          {required String primaryKey,
+          String? subKey,
+          String? requestMethod}) =>
+      _dioCacheManager!
+          .delete(primaryKey, subKey: subKey, requestMethod: requestMethod);
 
   ///清除所有本地缓存  不管有没有过期
   Future<bool> clearAllCache() => _dioCacheManager!.clearAll();
@@ -345,8 +355,13 @@ class ZdNetUtil {
         cancelToken: cancelToken,
       );
 
-      _useDioLogPrint && requestDioLogPrint ? JsonUtils.printRespond(response, titile: title == null ? url : '${title}:${url}') : null;
-    } on DioError catch (e) {}
+      _useDioLogPrint && requestDioLogPrint
+          ? JsonUtils.printRespond(response,
+              titile: title == null ? url : '${title}:${url}')
+          : null;
+    } on Error catch (e) {
+      print("Error-------: ${e}");
+    }
     endRequest?.call();
 
     return requiredResponse ? response : response?.data;
@@ -391,8 +406,13 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      _useDioLogPrint && requestDioLogPrint ? JsonUtils.printRespond(response, titile: title == null ? url : '${title}:${url}') : null;
-    } on DioError catch (e) {}
+      _useDioLogPrint && requestDioLogPrint
+          ? JsonUtils.printRespond(response,
+              titile: title == null ? url : '${title}:${url}')
+          : null;
+    } on Error catch (e) {
+      print("Error-------: ${e}");
+    }
     endRequest?.call();
     return requiredResponse ? response : response?.data;
   }
@@ -435,9 +455,14 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      _useDioLogPrint && requestDioLogPrint ? JsonUtils.printRespond(response, titile: title == null ? url : '${title}:${url}') : null;
+      _useDioLogPrint && requestDioLogPrint
+          ? JsonUtils.printRespond(response,
+              titile: title == null ? url : '${title}:${url}')
+          : null;
       ;
-    } on DioError catch (e) {}
+    } on Error catch (e) {
+      print("Error-------: ${e}");
+    }
     endRequest?.call();
     return requiredResponse ? response : response?.data;
   }
@@ -480,9 +505,14 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      _useDioLogPrint && requestDioLogPrint ? JsonUtils.printRespond(response, titile: title == null ? url : '${title}:${url}') : null;
+      _useDioLogPrint && requestDioLogPrint
+          ? JsonUtils.printRespond(response,
+              titile: title == null ? url : '${title}:${url}')
+          : null;
       ;
-    } on DioError catch (e) {}
+    } on Error catch (e) {
+      print("Error-------: ${e}");
+    }
     endRequest?.call();
     return requiredResponse ? response : response?.data;
   }
@@ -509,9 +539,11 @@ class ZdNetUtil {
 
     Map<String, dynamic> map = Map();
     if (!ObjectUtils.isEmptyString(imageType)) {
-      map["file"] = await MultipartFile.fromFile(path, filename: imageName + imageType!);
+      map["file"] =
+          await MultipartFile.fromFile(path, filename: imageName + imageType!);
     } else {
-      map["file"] = await MultipartFile.fromFile(path, filename: imageName + ".png");
+      map["file"] =
+          await MultipartFile.fromFile(path, filename: imageName + ".png");
     }
 
     FormData formData = FormData.fromMap(map);
@@ -534,10 +566,13 @@ class ZdNetUtil {
         },
       );
       _useDioLogPrint && requestDioLogPrint
-          ? JsonUtils.printRespond(response, titile: title == null ? "上传:" + url : '${title}:${url}')
+          ? JsonUtils.printRespond(response,
+              titile: title == null ? "上传:" + url : '${title}:${url}')
           : null;
       ;
-    } on DioError catch (e) {}
+    } on Error catch (e) {
+      print("Error-------: ${e}");
+    }
     return requiredResponse ? response : response?.data;
   }
 
@@ -558,18 +593,22 @@ class ZdNetUtil {
     Response? response;
     var path = '';
     try {
-      path = await StorageUtils.getAppDocPath(fileName: fileName, dirName: dirName);
-      response = await _dio!.download(urlPath, path, cancelToken: cancelToken, queryParameters: queryParameters,
+      path = await StorageUtils.getAppDocPath(
+          fileName: fileName, dirName: dirName);
+      response = await _dio!.download(urlPath, path,
+          cancelToken: cancelToken, queryParameters: queryParameters,
           onReceiveProgress: (int count, int total) {
         //进度
         ;
-        _useDioLogPrint && requestDioLogPrint ? LogUtils.d("下载进度:$count $total", tag: "DownloadFile") : null;
+        _useDioLogPrint && requestDioLogPrint
+            ? LogUtils.d("下载进度:$count $total", tag: "DownloadFile")
+            : null;
         if (onReceiveProgress != null) {
           onReceiveProgress(count, total);
         }
       });
-    } on DioError catch (e) {
-      print('downloadFile error---------$e');
+    } on Error catch (e) {
+      print("Error-------: ${e}");
     }
     return requiredResponse ? response : path;
   }
