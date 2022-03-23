@@ -177,21 +177,21 @@ class ZdNetUtil {
       _dio!.interceptors.add(_dioCacheManager!.interceptor);
 
       ///
-      (_dio!.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (client) {
-        /// 过https 证书
-        client.badCertificateCallback = (cert, host, port) {
-          return true;
-        };
+      if (_findProxy) {
+        (_dio!.httpClientAdapter as DefaultHttpClientAdapter)
+            .onHttpClientCreate = (client) {
+          /// 过https 证书
+          client.badCertificateCallback = (cert, host, port) {
+            return true;
+          };
 
-        ///代理
-        if (_findProxy) {
+          ///代理
+
           client.findProxy = (url) {
             return "PROXY ${_findProxyUrl}";
           };
-        }
-      };
-
+        };
+      }
 //      _dio.interceptors.add(new PrettyDioLogger());
       //_dio!.interceptors.add(new ResponseInterceptors(0));
     }
