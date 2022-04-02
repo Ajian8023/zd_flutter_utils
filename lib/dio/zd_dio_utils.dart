@@ -139,7 +139,7 @@ class ZdNetUtil {
           headers: _baseHeader ?? _zdHeaders,
 
           ///请求 contentType
-          contentType: _contentType ?? Headers.jsonContentType,
+          contentType: _contentType,
           responseType: _responseType ?? ResponseType.json);
 
       _dio = new Dio(_options);
