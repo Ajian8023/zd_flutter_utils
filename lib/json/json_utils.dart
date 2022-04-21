@@ -64,7 +64,7 @@ class JsonUtils {
     httpLogMap.putIfAbsent("请求头", () => response.requestOptions.headers);
     httpLogMap.putIfAbsent(
         "query参数", () => response.requestOptions.queryParameters);
-    httpLogMap.putIfAbsent('body参数',()=>response.data);
+    httpLogMap.putIfAbsent('body参数',()=>response.requestOptions.data);
     httpLogMap.putIfAbsent("响应数据", () => response.data);
 
 
