@@ -59,12 +59,14 @@ class JsonUtils {
     }
     
     Map httpLogMap = Map();
+     httpLogMap.putIfAbsent(
+        "请求URL", () => "${response.requestOptions.uri}");
+    httpLogMap.putIfAbsent("请求头", () => response.requestOptions.headers);
     httpLogMap.putIfAbsent(
-        "requestUrl", () => "${response.requestOptions.uri}");
-    httpLogMap.putIfAbsent("Headers", () => response.requestOptions.headers);
-    httpLogMap.putIfAbsent(
-        "Parameters", () => response.requestOptions.queryParameters);
-    httpLogMap.putIfAbsent("respondData", () => response.data);
+        "query参数", () => response.requestOptions.queryParameters);
+    httpLogMap.putIfAbsent('body参数',()=>response.data);
+    httpLogMap.putIfAbsent("响应数据", () => response.data);
+
 
     printJsonDebug(httpLogMap);
     print(
