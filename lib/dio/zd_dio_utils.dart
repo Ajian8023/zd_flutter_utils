@@ -88,7 +88,7 @@ class ZdNetUtil {
     OnResponseCallback? onResponseCallback,
     OnRequestCallback? onRequestCallback,
     bool useDioLogPrint = true,
-  }) {
+  }) async {
     _baseUrl = baseUrl;
     _baseHeader = header ?? _baseHeader;
     _connectTimeout = connectTimeout;
@@ -337,11 +337,7 @@ class ZdNetUtil {
     String? cacheSubKey,
   }) async {
     Response? response;
-    final transaction = Sentry.startTransaction(
-      'dio-web-request',
-      'request',
-      bindToScope: true,
-    );
+
     try {
       startRequest?.call();
       response = await _dio!.get(
@@ -357,19 +353,15 @@ class ZdNetUtil {
         ),
         cancelToken: cancelToken,
       );
-      transaction.status = SpanStatus.fromHttpStatusCode(response.statusCode ?? -1);
+
       _useDioLogPrint && requestDioLogPrint
           ? JsonUtils.printRespond(response, titile: title == null ? url : '${title}:${url}')
           : null;
     } catch (e) {
-      transaction.throwable = e;
-      transaction.status = const SpanStatus.internalError();
       print("Error-------: ${e}");
-    } finally {
-      await transaction.finish();
     }
     endRequest?.call();
-    await Sentry.close();
+
     return requiredResponse ? response : response?.data;
   }
 
@@ -396,11 +388,7 @@ class ZdNetUtil {
     Map<String, dynamic>? queryParameters,
   }) async {
     Response? response;
-    final transaction = Sentry.startTransaction(
-      'dio-web-request',
-      'request',
-      bindToScope: true,
-    );
+
     try {
       startRequest?.call();
 
@@ -417,18 +405,14 @@ class ZdNetUtil {
             subKey: cacheSubKey),
         cancelToken: cancelToken,
       );
-      transaction.status = SpanStatus.fromHttpStatusCode(response.statusCode ?? -1);
+
       _useDioLogPrint && requestDioLogPrint
           ? JsonUtils.printRespond(response, titile: title == null ? url : '${title}:${url}')
           : null;
     } catch (e) {
-      transaction.throwable = e;
-      transaction.status = const SpanStatus.internalError();
       print("Error-------: ${e}");
-    } finally {
-      await transaction.finish();
     }
-    await Sentry.close();
+
     endRequest?.call();
     return requiredResponse ? response : response?.data;
   }
