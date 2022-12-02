@@ -194,7 +194,7 @@ class ZdNetUtil {
       }
 //      _dio.interceptors.add(new PrettyDioLogger());
       //_dio!.interceptors.add(new ResponseInterceptors(0));
-       dio.addSentry();
+      _dio!.addSentry();
     }
   }
 
