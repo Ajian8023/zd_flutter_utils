@@ -4,7 +4,7 @@ import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/foundation.dart';
 import 'package:postman_dio/postman_dio.dart';
 import 'package:zd_flutter_utils/flutter_utils.dart';
-
+import 'package:sentry_dio/sentry_dio.dart';
 import 'dio_log_Interceptor.dart';
 
 /*
@@ -194,6 +194,7 @@ class ZdNetUtil {
       }
 //      _dio.interceptors.add(new PrettyDioLogger());
       //_dio!.interceptors.add(new ResponseInterceptors(0));
+       dio.addSentry();
     }
   }
 
