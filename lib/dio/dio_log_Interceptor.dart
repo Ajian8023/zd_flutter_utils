@@ -59,7 +59,7 @@ class DioInterceptor extends Interceptor {
       } else {
         LogUtils.i("请求参数 :" + options.data.toString(), tag: "ZdNetRequest");
       }
-      if (ObjectUtils.isEmptyMap(options.extra)) {
+      if (!ObjectUtils.isEmptyMap(options.extra)) {
         LogUtils.i("携带extra :" + options.extra.toJsonString(),
             tag: "ZdNetRequest");
       }
