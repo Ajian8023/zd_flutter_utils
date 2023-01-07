@@ -47,10 +47,9 @@ class DioInterceptor extends Interceptor {
     }
     _assessNetWork();
     //如果全局输出  、 并且携带requestLog 那么默认输出  如果
-    if ((_useDioLogPrint &&
-            !ObjectUtils.isEmptyMap(options.extra) &&
-            ['requestLogPrint'] == true) ||
-        (_useDioLogPrint && ObjectUtils.isEmptyMap(options.extra))) {
+    if (_useDioLogPrint &&
+        !ObjectUtils.isEmptyMap(options.extra) &&
+        ['requestLogPrint'] == true) {
       LogUtils.i("请求URL :" + options.baseUrl, tag: "ZdNetRequest");
       LogUtils.i("请求方法 :" + options.path, tag: "ZdNetRequest");
       LogUtils.i("请求类型 :" + options.method, tag: "ZdNetRequest");
