@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:zd_flutter_utils/flutter_utils.dart';
 
 typedef OnResponseCallback = void Function(Response response);
@@ -47,21 +46,17 @@ class DioInterceptor extends Interceptor {
     }
     _assessNetWork();
     //如果全局输出  、 并且携带requestLog 那么默认输出  如果
-    if (_useDioLogPrint &&
-        !ObjectUtils.isEmptyMap(options.extra) &&
-        options.extra['requestLogPrint'] == true) {
+    if (_useDioLogPrint && !ObjectUtils.isEmptyMap(options.extra) && options.extra['requestLogPrint'] == true) {
       LogUtils.i("请求URL :" + options.baseUrl, tag: "ZdNetRequest");
       LogUtils.i("请求方法 :" + options.path, tag: "ZdNetRequest");
       LogUtils.i("请求类型 :" + options.method, tag: "ZdNetRequest");
       if (options.method == "GET") {
-        LogUtils.i("请求参数 :" + options.queryParameters.toJsonString(),
-            tag: "ZdNetRequest");
+        LogUtils.i("请求参数 :" + options.queryParameters.toJsonString(), tag: "ZdNetRequest");
       } else {
         LogUtils.i("请求参数 :" + options.data.toString(), tag: "ZdNetRequest");
       }
       if (!ObjectUtils.isEmptyMap(options.extra)) {
-        LogUtils.i("携带extra :" + options.extra.toJsonString(),
-            tag: "ZdNetRequest");
+        LogUtils.i("携带extra :" + options.extra.toJsonString(), tag: "ZdNetRequest");
       }
     }
 
@@ -85,29 +80,21 @@ class DioInterceptor extends Interceptor {
     if (e.type == DioErrorType.connectTimeout) {
       _connectTimeoutCallBack?.call();
 
-      _dioErrLog(e,
-          title: "连接ERROR", message: "请求超时", tag: 'ZdNetError ConnectTimeout');
+      _dioErrLog(e, title: "连接ERROR", message: "请求超时", tag: 'ZdNetError ConnectTimeout');
     } else if (e.type == DioErrorType.sendTimeout) {
       _sendTimeoutCallBack?.call();
-      _dioErrLog(e,
-          title: "请求ERROR", message: "请求超时", tag: 'ZdNetError SendTimeout');
+      _dioErrLog(e, title: "请求ERROR", message: "请求超时", tag: 'ZdNetError SendTimeout');
 
       // It occurs when url is sent timeout.
 
     } else if (e.type == DioErrorType.receiveTimeout) {
       _receiveTimeoutCallBack?.call();
 
-      _dioErrLog(e,
-          title: "响应ERROR", message: "响应超时", tag: "ZdNetError ReceiveTimeout");
+      _dioErrLog(e, title: "响应ERROR", message: "响应超时", tag: "ZdNetError ReceiveTimeout");
     } else if (e.type == DioErrorType.response) {
       _responseCallBack?.call();
-      _dioErrLog(e,
-          title: "服务器异常ERROR",
-          message: "服务器出现异常",
-          tag: "ZdNetError ResponseError");
-      await Sentry.captureException(
-        e,
-      );
+      _dioErrLog(e, title: "服务器异常ERROR", message: "服务器出现异常", tag: "ZdNetError ResponseError");
+
       LogUtils.e("Error---------------------------${e}");
     } else if (e.type == DioErrorType.cancel) {
       _cancelCallBack?.call();
@@ -115,8 +102,7 @@ class DioInterceptor extends Interceptor {
     } else {
       _otherCallBack?.call();
       print(e);
-      _dioErrLog(e,
-          title: "未知异常", message: "未知异常", tag: "ZdNetError OtherError");
+      _dioErrLog(e, title: "未知异常", message: "未知异常", tag: "ZdNetError OtherError");
     }
 
     handler.next(e);
@@ -149,15 +135,12 @@ class DioInterceptor extends Interceptor {
     LogUtils.e("${title} 方法 :" + e.requestOptions.path, tag: tag);
     LogUtils.e("${title} 类型 :" + e.requestOptions.method, tag: tag);
     if (e.requestOptions.method == "GET") {
-      LogUtils.e(
-          "${title} 参数 :" + e.requestOptions.queryParameters.toJsonString(),
-          tag: tag);
+      LogUtils.e("${title} 参数 :" + e.requestOptions.queryParameters.toJsonString(), tag: tag);
     } else {
       LogUtils.e("${title} 参数 :" + e.requestOptions.data.toString(), tag: tag);
     }
     if (ObjectUtils.isEmptyMap(e.requestOptions.extra)) {
-      LogUtils.e("${title} extra :" + e.requestOptions.extra.toJsonString(),
-          tag: tag);
+      LogUtils.e("${title} extra :" + e.requestOptions.extra.toJsonString(), tag: tag);
     }
   }
 }
