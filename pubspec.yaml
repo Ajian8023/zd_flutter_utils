@@ -18,12 +18,12 @@ dependencies:
 
   path_provider: ^2.0.8
   cached_network_image: ^3.2.0
-  shared_preferences: ^2.0.12
+  shared_preferences: ^2.1.0
   package_info: ^2.0.2
   json_annotation: ^4.0.1
   json_serializable: ^4.1.4
   #判断网络状态
-  connectivity: ^3.0.6
+  connectivity_plus: ^3.0.4
   postman_dio: ^1.0.4
   dio_http_cache: ^0.3.0
 dev_dependencies:

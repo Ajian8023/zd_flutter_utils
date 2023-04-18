@@ -1,7 +1,7 @@
 import 'dart:core';
 import 'dart:ui';
 
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:zd_flutter_utils/flutter_utils.dart';
 
