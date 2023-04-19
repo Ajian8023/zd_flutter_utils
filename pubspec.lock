@@ -161,13 +161,13 @@ packages:
       name: dio
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.6"
+    version: "5.1.1"
   dio_http_cache:
     dependency: "direct main"
     description:
-      name: dio_http_cache
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "plugins/dio-http-cache"
+      relative: true
+    source: path
     version: "0.3.0"
   fake_async:
     dependency: transitive
@@ -394,13 +394,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.4"
-  postman_dio:
-    dependency: "direct main"
-    description:
-      name: postman_dio
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.4"
   process:
     dependency: transitive
     description:

@@ -1,6 +1,3 @@
-import 'dart:developer';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:zd_flutter_utils/dio/zd_dio_utils.dart';
@@ -8,7 +5,6 @@ import 'package:zd_flutter_utils/except/handle_exception.dart';
 import 'package:zd_flutter_utils/log/log_utils.dart';
 import 'package:zd_flutter_utils/screen/flutter_screenutil.dart';
 import 'package:zd_flutter_utils/sp/sp_utils.dart';
-import 'package:zd_flutter_utils/toast/snack_utils.dart';
 import 'package:zd_flutter_utils/utils/flutter_init_utils.dart';
 import 'package:zd_flutter_utils_example/utils/bus_utils_page.dart';
 import 'package:zd_flutter_utils_example/utils/color_utils_page.dart';
@@ -18,7 +14,6 @@ import 'package:zd_flutter_utils_example/utils/extension_utils_page.dart';
 import 'package:zd_flutter_utils_example/utils/file_utils_page.dart';
 import 'package:zd_flutter_utils_example/utils/image_utils_page.dart';
 import 'package:zd_flutter_utils_example/utils/json_utils_page.dart';
-import 'package:zd_flutter_utils_example/utils/log_utils_page.dart';
 import 'package:zd_flutter_utils_example/utils/num_utils_page.dart';
 import 'package:zd_flutter_utils_example/utils/object_utils_page.dart';
 import 'package:zd_flutter_utils_example/utils/regex_utils_page.dart';
@@ -142,7 +137,7 @@ class HomePageState extends State<HomePage> {
           child: ListView(
             children: <Widget>[
               CustomRaisedButton(BusPage(), "EventBus 事件通知工具类"),
-              CustomRaisedButton(LogUtilsPage(), "LogUtils 日志工具类"),
+              //CustomRaisedButton(LogUtilsPage(), "LogUtils 日志工具类"),
               CustomRaisedButton(DatePage(), "DateUtils 日期工具类"),
               CustomRaisedButton(JsonUtilsPage(), "JsonUtils Json工具类"),
               CustomRaisedButton(FileStoragePage(), "FileUtils 文件工具类"),

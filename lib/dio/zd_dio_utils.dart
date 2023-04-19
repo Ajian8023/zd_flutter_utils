@@ -1,8 +1,6 @@
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/foundation.dart';
-import 'package:postman_dio/postman_dio.dart';
 import 'package:zd_flutter_utils/flutter_utils.dart';
 
 import 'dio_log_Interceptor.dart';
@@ -130,10 +128,10 @@ class ZdNetUtil {
           baseUrl: _baseUrl ?? "",
 
           ///相应超时时间
-          connectTimeout: _connectTimeout ?? 150000,
+          connectTimeout: Duration(milliseconds: _connectTimeout ?? 7000),
 
           ///响应流上次请求时间
-          receiveTimeout: _receiveTimeout ?? 7000,
+          receiveTimeout: Duration(milliseconds: _receiveTimeout ?? 7000),
 
           ///请求头
           headers: _baseHeader ?? _zdHeaders,
@@ -158,15 +156,15 @@ class ZdNetUtil {
         _onRequestCallback,
         _useDioLogPrint,
       ));
-      _dio!.interceptors.add(
-        PostmanDioLogger(
-            logPrint: (Object object) => _useDioLogPrint
-                ? LogUtils.i(
-                    object.toString(),
-                    tag: 'PostmanDioLoggerSimple',
-                  )
-                : null),
-      );
+      // _dio!.interceptors.add(
+      //   PostmanDioLogger(
+      //       logPrint: (Object object) => _useDioLogPrint
+      //           ? LogUtils.i(
+      //               object.toString(),
+      //               tag: 'PostmanDioLoggerSimple',
+      //             )
+      //           : null),
+      // );
       if (!kIsWeb) {
         _dioCacheManager = DioCacheManager(CacheConfig(
           baseUrl: _baseUrl,
@@ -177,21 +175,21 @@ class ZdNetUtil {
       ///缓存库
       _dio!.interceptors.add(_dioCacheManager!.interceptor);
 
-      ///
-      if (_findProxy) {
-        (_dio!.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-          /// 过https 证书
-          client.badCertificateCallback = (cert, host, port) {
-            return true;
-          };
-
-          ///代理
-
-          client.findProxy = (url) {
-            return "PROXY ${_findProxyUrl}";
-          };
-        };
-      }
+      ///todo 废弃
+      // if (_findProxy) {
+      //   (_dio!.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+      //     /// 过https 证书
+      //     client.badCertificateCallback = (cert, host, port) {
+      //       return true;
+      //     };
+      //
+      //     ///代理
+      //
+      //     client.findProxy = (url) {
+      //       return "PROXY ${_findProxyUrl}";
+      //     };
+      //   };
+      // }
 //      _dio.interceptors.add(new PrettyDioLogger());
       //_dio!.interceptors.add(new ResponseInterceptors(0));
 

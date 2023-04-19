@@ -77,7 +77,7 @@ class DioInterceptor extends Interceptor {
     DioError e,
     ErrorInterceptorHandler handler,
   ) async {
-    if (e.type == DioErrorType.connectTimeout) {
+    if (e.type == DioErrorType.connectionTimeout) {
       _connectTimeoutCallBack?.call();
 
       _dioErrLog(e, title: "连接ERROR", message: "请求超时", tag: 'ZdNetError ConnectTimeout');
@@ -91,11 +91,10 @@ class DioInterceptor extends Interceptor {
       _receiveTimeoutCallBack?.call();
 
       _dioErrLog(e, title: "响应ERROR", message: "响应超时", tag: "ZdNetError ReceiveTimeout");
-    } else if (e.type == DioErrorType.response) {
+    } else if (e.type == DioErrorType.badResponse) {
       _responseCallBack?.call();
       _dioErrLog(e, title: "服务器异常ERROR", message: "服务器出现异常", tag: "ZdNetError ResponseError");
-
-      LogUtils.e("Error---------------------------${e}");
+      print(e);
     } else if (e.type == DioErrorType.cancel) {
       _cancelCallBack?.call();
       _dioErrLog(e, title: "请求取消", message: "请求取消", tag: "ZdNetError Cancel");

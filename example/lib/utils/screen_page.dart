@@ -25,9 +25,7 @@ class _ScreenPageState extends State<ScreenPage> {
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(
-        BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width,
-            maxHeight: MediaQuery.of(context).size.height),
+        BoxConstraints(maxWidth: MediaQuery.of(context).size.width, maxHeight: MediaQuery.of(context).size.height),
         designSize: Size(375, 812),
         orientation: Orientation.portrait);
     return Scaffold(
@@ -39,16 +37,21 @@ class _ScreenPageState extends State<ScreenPage> {
         children: [
           InkWell(
             onTap: () async {
-              await ZdNetUtil.getInstance(
-                      baseUrl: 'http://www.zdsenlin.com:8085/')
-                  .post(
-                      url: "recharge/getRecharge",
-                      title: "查询",
-                      data: {"name": "123"},
-                      cancelToken: cancelToken,
-                      cacheMaxAge: Duration(seconds: 100),
-                      cacheMaxStale: Duration(seconds: 100),
-                      cacheForceRefresh: false);
+              ZdNetUtil.preInit(
+                baseUrl: 'http://81.70.218.22:88',
+                connectTimeout: 10 * 1000,
+                useDioLogPrint: true,
+                receiveTimeout: 10 * 1000,
+              );
+              Map<String, dynamic> data = {'mobile': 18500010331, 'scene': 1};
+              await ZdNetUtil.getInstance(baseUrl: 'http://81.70.218.22:88').post(
+                  url: "/app-api/member/auth/send-sms-code",
+                  title: "查询",
+                  data: data,
+                  cancelToken: cancelToken,
+                  cacheMaxAge: Duration(seconds: 100),
+                  cacheMaxStale: Duration(seconds: 100),
+                  cacheForceRefresh: false);
 
               // ZdNetUtil.getInstance().cancelRequests(cancelToken);
 
@@ -67,8 +70,7 @@ class _ScreenPageState extends State<ScreenPage> {
               alignment: Alignment.centerLeft,
               height: 200,
               width: 200,
-              decoration: BoxDecoration(
-                  color: Colors.amber, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(12)),
               child: Text(
                 "适配前",
                 style: TextStyle(fontSize: 12),

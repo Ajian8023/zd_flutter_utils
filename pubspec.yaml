@@ -9,7 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   decimal: ^2.1.0
-  dio: ^4.0.4
+
   async: ^2.4.2
   crypto: ^3.0.0
   convert:  ^3.0.0
@@ -24,8 +24,16 @@ dependencies:
   json_serializable: ^4.1.4
   #判断网络状态
   connectivity_plus: ^3.0.4
-  postman_dio: ^1.0.4
-  dio_http_cache: ^0.3.0
+
+
+  dio: ^5.1.1
+# git hub
+
+
+  dio_http_cache:
+    path: plugins/dio-http-cache
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
