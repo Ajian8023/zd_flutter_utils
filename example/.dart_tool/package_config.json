@@ -189,7 +189,7 @@
     },
     {
       "name": "dio_http_cache",
-      "rootUri": "../../plugins/dio-http-cache",
+      "rootUri": "file:///Users/tj/flutter/.pub-cache/git/dio-http-cache-79d8056102f385291718c36e02e064a37050fa4f/",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -686,7 +686,7 @@
       "languageVersion": "2.15"
     }
   ],
-  "generated": "2023-04-19T02:39:35.083035Z",
+  "generated": "2023-04-19T03:32:28.766630Z",
   "generator": "pub",
   "generatorVersion": "2.18.2"
 }

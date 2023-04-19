@@ -165,9 +165,11 @@ packages:
   dio_http_cache:
     dependency: "direct main"
     description:
-      path: "plugins/dio-http-cache"
-      relative: true
-    source: path
+      path: "."
+      ref: master
+      resolved-ref: "79d8056102f385291718c36e02e064a37050fa4f"
+      url: "https://github.com/Ajian8023/dio-http-cache.git"
+    source: git
     version: "0.3.0"
   fake_async:
     dependency: transitive

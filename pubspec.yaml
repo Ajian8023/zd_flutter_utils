@@ -1,6 +1,6 @@
 name: zd_flutter_utils
 description: 折叠科技
-
+publish_to: none
 version: 0.0.1
 environment:
   sdk: ">=2.15.1 <3.0.0"
@@ -31,7 +31,12 @@ dependencies:
 
 
   dio_http_cache:
-    path: plugins/dio-http-cache
+    git:
+      url: https://github.com/Ajian8023/dio-http-cache.git
+      ref: master
+
+
+
 
 
 dev_dependencies:
