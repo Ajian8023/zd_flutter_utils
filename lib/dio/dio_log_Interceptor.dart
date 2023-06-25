@@ -15,7 +15,7 @@ class DioInterceptor extends Interceptor {
   VoidCallback? _cancelCallBack;
   VoidCallback? _otherCallBack;
   OnRequestErrorCallback? _responseCallBack;
-  VoidCallback? _responseCallBack;
+
   VoidCallback? _wifiNetWorkCallBack;
   VoidCallback? _noneNetWorkCallBack;
   VoidCallback? _mobileNetWorkCallBack;
