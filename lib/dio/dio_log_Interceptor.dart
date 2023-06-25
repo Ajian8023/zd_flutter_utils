@@ -7,13 +7,14 @@ import 'package:zd_flutter_utils/flutter_utils.dart';
 
 typedef OnResponseCallback = void Function(Response response);
 typedef OnRequestCallback = void Function(RequestOptions response);
-
+typedef OnRequestErrorCallback = void Function(RequestOptions response);
 class DioInterceptor extends Interceptor {
   VoidCallback? _connectTimeoutCallBack;
   VoidCallback? _sendTimeoutCallBack;
   VoidCallback? _receiveTimeoutCallBack;
   VoidCallback? _cancelCallBack;
   VoidCallback? _otherCallBack;
+  OnRequestErrorCallback? _responseCallBack;
   VoidCallback? _responseCallBack;
   VoidCallback? _wifiNetWorkCallBack;
   VoidCallback? _noneNetWorkCallBack;
@@ -27,6 +28,7 @@ class DioInterceptor extends Interceptor {
     this._sendTimeoutCallBack,
     this._receiveTimeoutCallBack,
     this._cancelCallBack,
+    this._responseCallBack,
     this._otherCallBack,
     this._responseCallBack,
     this._wifiNetWorkCallBack,
@@ -92,7 +94,10 @@ class DioInterceptor extends Interceptor {
 
       _dioErrLog(e, title: "响应ERROR", message: "响应超时", tag: "ZdNetError ReceiveTimeout");
     } else if (e.type == DioErrorType.badResponse) {
-      _responseCallBack?.call();
+      if(_responseCallBack!=null){
+             _responseCallBack!(e);
+      }
+ 
       _dioErrLog(e, title: "服务器异常ERROR", message: "服务器出现异常", tag: "ZdNetError ResponseError");
       print(e);
     } else if (e.type == DioErrorType.cancel) {
