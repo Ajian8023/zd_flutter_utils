@@ -39,7 +39,7 @@ class ZdNetUtil {
 
   ///
   /// request  response 回调
-  static VoidCallback? _responseCallBack;
+  static OnRequestErrorCallback? _responseCallBack;
   static OnRequestCallback? _onRequestCallback;
 
   ///抓包
