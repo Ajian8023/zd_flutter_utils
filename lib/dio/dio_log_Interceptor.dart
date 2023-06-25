@@ -28,7 +28,7 @@ class DioInterceptor extends Interceptor {
     this._sendTimeoutCallBack,
     this._receiveTimeoutCallBack,
     this._cancelCallBack,
-    this._responseCallBack,
+
     this._otherCallBack,
     this._responseCallBack,
     this._wifiNetWorkCallBack,
