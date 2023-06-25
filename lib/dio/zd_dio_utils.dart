@@ -6,7 +6,7 @@ import 'package:zd_flutter_utils/flutter_utils.dart';
 import 'dio_log_Interceptor.dart';
 
 /*
- * 封装 restful 请求
+ * 封装 restful 请求 1
  *
  * GET、POST、DELETE、PUT、DOWNLOAD、UPLOAD
  * 主要作用为统一处理相关事务：
