@@ -77,7 +77,7 @@ class ZdNetUtil {
     VoidCallback? receiveTimeoutCallBack,
     VoidCallback? cancelCallBack,
     VoidCallback? otherCallBack,
-    VoidCallback? responseCallBack,
+    OnRequestErrorCallback? responseCallBack,
     VoidCallback? noneNetWorkCallBack,
     VoidCallback? mobileNetWorkCallBackl,
     VoidCallback? wifiNetWorkCallBack,
