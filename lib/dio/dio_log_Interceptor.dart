@@ -7,7 +7,7 @@ import 'package:zd_flutter_utils/flutter_utils.dart';
 
 typedef OnResponseCallback = void Function(Response response);
 typedef OnRequestCallback = void Function(RequestOptions response);
-typedef OnRequestErrorCallback = void Function(RequestOptions response);
+typedef OnRequestErrorCallback = void Function(DioError error);
 class DioInterceptor extends Interceptor {
   VoidCallback? _connectTimeoutCallBack;
   VoidCallback? _sendTimeoutCallBack;
